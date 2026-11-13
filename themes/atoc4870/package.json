@@ -1,0 +1,13 @@
+{
+  "name": "slidev-theme-atoc4870",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Slidev theme matching the ATOC 4870/5870 lecture decks (purple cover, navy Calibri text, blue question line)",
+  "keywords": ["slidev-theme"],
+  "slidev": {
+    "colorSchema": "light",
+    "defaults": {
+      "fonts": { "sans": "Carlito", "mono": "Fira Code", "provider": "google" }
+    }
+  }
+}

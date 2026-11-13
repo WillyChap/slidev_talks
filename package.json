@@ -1,0 +1,25 @@
+{
+  "name": "slidev-talks",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev --remote",
+    "build": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev build",
+    "export": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev export",
+    "gregory": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev gregory-lecture.md --remote",
+    "gregory:export": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev export gregory-lecture.md",
+    "atoc": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev gregory-atoc.md --remote",
+    "atoc:build": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev build gregory-atoc.md --out dist-atoc"
+  },
+  "overrides": {
+    "floating-vue": "5.2.2"
+  },
+  "dependencies": {
+    "@slidev/cli": "^53.1.0",
+    "@slidev/types": "^53.1.0",
+    "slidev-theme-cu-boulder": "github:JValdivia23/slidev-theme-cu-boulder"
+  },
+  "devDependencies": {
+    "playwright-chromium": "^1.65.0"
+  }
+}

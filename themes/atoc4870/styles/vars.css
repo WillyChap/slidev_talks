@@ -1,0 +1,23 @@
+/* Colours measured from ATOC4870_Ocean_Sea_Ice_POP_CICE.pptx */
+:root {
+  --atoc-purple: #7030A0;   /* cover background */
+  --atoc-cover-accent: #F5D97A;
+  --atoc-navy: #1F2A3D;     /* titles, body, table header */
+  --atoc-blue: #1B5E8C;     /* section labels, question line */
+  --atoc-orange: #B5561A;
+  --atoc-green: #2E7D4F;
+  --atoc-muted: #6B7280;    /* captions */
+  --atoc-rule: #D9DFE6;     /* table borders */
+  --atoc-stripe: #F5F7FA;
+
+  /* names used by the shared components and style.css */
+  --cu-text: var(--atoc-navy);
+  --cu-text-muted: var(--atoc-muted);
+  --cu-border: var(--atoc-rule);
+  --cu-light-gray: #A2A4A3;
+  --cu-sky-blue: var(--atoc-blue);
+  --cu-gold: var(--atoc-blue);
+  --cu-on-gold: #ffffff;
+
+  --slidev-theme-primary: var(--atoc-blue);
+}

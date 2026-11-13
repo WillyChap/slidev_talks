@@ -1,0 +1,14 @@
+.context { margin-top: 0.8rem; padding-left: 0.8rem; border-left: 3px solid var(--cu-gold); font-size: 0.85em; color: var(--cu-text-muted); }
+.context.small { font-size: 0.75em; }
+.side-box { font-size: 0.8em; margin-top: 4.2rem; }
+.side-box table { font-size: 0.95em; }
+.caption { font-size: 0.68rem; color: var(--cu-text-muted); margin-top: 0.3rem; }
+.fig-full { width: 100%; max-height: 262px; object-fit: contain; margin-top: 0.4rem; background: white; }
+.fig-side { width: 100%; margin-top: 4.2rem; background: white; }
+.refs { font-size: 0.72em; line-height: 1.45; }
+.caption p { margin: 0; }
+.slidev-layout.dense { font-size: 0.88em; }
+.slidev-layout.dense h1 { font-size: 2.1rem; }
+.slidev-layout.dense .katex-display { margin: 0.5em 0; }
+.slidev-layout.dense p { margin: 0.5em 0; }
+.slidev-layout.dense table td, .slidev-layout.dense table th { padding: 0.3em 0.5em; }

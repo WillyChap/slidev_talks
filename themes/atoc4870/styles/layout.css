@@ -1,0 +1,55 @@
+/* 980 px canvas = 13.333 in, so 1 in = 73.5 px; sizes follow the pptx (pt -> px x 1.02) */
+.slidev-layout {
+  font-family: Calibri, Carlito, 'Segoe UI', Arial, sans-serif;
+  color: var(--atoc-navy);
+  background: #ffffff;
+  font-size: 21px;
+  line-height: 1.3;
+  padding: 23px 40px 24px 40px;
+}
+.slidev-layout h1 {
+  font-size: 26.5px; font-weight: 700; line-height: 1.2; color: var(--atoc-navy);
+  margin: 0 0 22px 0; padding: 0; border: none;
+}
+.slidev-layout h2 { font-size: 22px; font-weight: 700; color: var(--atoc-navy); margin: 0 0 0.4em; }
+.slidev-layout h3 { font-size: 17.5px; font-weight: 700; color: var(--atoc-blue); margin: 0.6em 0 0.2em; }
+.slidev-layout p, .slidev-layout li { margin: 0.45em 0; }
+.slidev-layout > :not(h1) { margin-left: 17px; }   /* body sits at 0.78 in, title at 0.55 in */
+.slidev-layout strong { color: var(--atoc-navy); }
+.slidev-layout a { color: var(--atoc-blue); }
+.slidev-layout ul { list-style: disc; padding-left: 1.1em; }
+
+/* Tables: navy header row, thin grey rules, light stripes */
+.slidev-layout table { border-collapse: collapse; width: 100%; font-size: 0.86em; margin: 0.5em 0; }
+.slidev-layout th { background: var(--atoc-navy); color: #fff; font-weight: 700; text-align: left; }
+.slidev-layout th, .slidev-layout td { border: 1px solid var(--atoc-rule); padding: 0.35em 0.6em; }
+.slidev-layout tbody tr:nth-child(even) td { background: var(--atoc-stripe); }
+
+/* The bold blue line at the foot of ATOC slides: a question or the point of the slide */
+.slidev-layout .ask { position: absolute; left: 57px; right: 40px; bottom: 38px; margin: 0;
+  font-size: 20.5px; font-weight: 700; color: var(--atoc-blue); }
+.slidev-layout .ask p { margin: 0; }
+.slidev-layout .ask strong { color: var(--atoc-blue); }
+/* small grey note along the bottom edge */
+.slidev-layout .footnote { position: absolute; left: 57px; right: 40px; bottom: 14px; margin: 0;
+  font-size: 14px; color: var(--atoc-muted); }
+.slidev-layout .label-orange { color: var(--atoc-orange); font-weight: 700; }
+.slidev-layout .label-green { color: var(--atoc-green); font-weight: 700; }
+
+.slidev-layout .katex { font-size: 1.05em; }
+
+/* Cover */
+.slidev-layout.cover { background: var(--atoc-purple); color: #fff; padding: 138px 59px 40px 59px; }
+.slidev-layout.cover h1 { color: #fff; font-size: 41px; line-height: 1.3; margin-bottom: 30px; max-width: 640px; }
+.slidev-layout.cover > :not(h1) { margin-left: 0; }
+.slidev-layout.cover p, .slidev-layout.cover .who { color: #fff; font-size: 20.5px; line-height: 1.45; margin: 0; }
+.slidev-layout.cover .tagline { color: var(--atoc-cover-accent); font-weight: 700; font-size: 20.5px; margin-top: 46px; }
+
+/* Two columns */
+.slidev-layout .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+.slidev-layout .cols > div > :first-child { margin-top: 0; }
+.slidev-layout .small-table table { font-size: 0.8em; }
+.slidev-layout .fig-col { width: 100%; max-height: 330px; object-fit: contain; }
+.slidev-layout .context { font-size: 0.86em; }
+.slidev-layout .refs h3:first-child { margin-top: 0; }
+.slidev-layout .refs p { font-size: 0.9em; }

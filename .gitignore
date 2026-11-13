@@ -1,0 +1,12 @@
+# tools (reinstall with npm install; .node-env is Casper-only conda Node)
+node_modules/
+.node-env/
+# build output
+dist/
+dist-*/
+_site/
+# notebooks and logs
+.ipynb_checkpoints/
+*.log
+# large or regenerable binaries
+*.pptx

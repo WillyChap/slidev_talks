@@ -55,7 +55,7 @@ A positive $R_{\mathrm{TOA}}$ means the climate system is gaining energy. Today 
 
 <div class="ask">
 
-Discussion: where does most of the extra energy go while the climate warms?
+Question: where does most of the extra energy go while the climate warms?
 
 </div>
 
@@ -74,7 +74,7 @@ Discussion: where does most of the extra energy go while the climate warms?
 
 ### CO₂ changes the energy budget
 
-Less longwave radiation escapes to space. The planet gains energy before the surface has warmed appreciably.
+Less longwave radiation escapes to space. The planet gains energy before the surface has warmed.
 
 ### Warming changes it again
 
@@ -114,7 +114,7 @@ Start a **control** run at preindustrial CO₂ and an **abrupt-4×CO₂** run fr
 
 <img src="/figures/cesm2_timeseries.png" class="fig-full" alt="CESM2 abrupt-4xCO2 global-mean surface warming and TOA imbalance for years 1 to 150" />
 
-<div class="footnote">Annual global means, CESM2 abrupt-4×CO₂ minus the piControl mean (CMIP6, r1i1p1f1). Years 1 and 50 are marked.</div>
+<div class="footnote">Annual global means, CESM2 abrupt-4×CO₂ minus the piControl mean (CMIP6).</div>
 
 <!--
 {{NOTE5}}
@@ -122,16 +122,16 @@ Start a **control** run at preindustrial CO₂ and an **abrupt-4×CO₂** run fr
 
 ---
 
-# From two time series to one Gregory diagram
+# Two time series produce a Gregory diagram
 
-**Each dot pairs ΔT and N from the same year.**
+**Each dot represents ΔT and N from the same year.**
 
-| Illustrative year | Surface warming, $\Delta T$ (K) | TOA imbalance, $N$ (W m$^{-2}$) |
+| year | Surface warming, $\Delta T$ (K) | TOA imbalance, $N$ (W m$^{-2}$) |
 |---|---:|---:|
 | Year 1 | 1 | 6 |
 | Year 50 | 3 | 2 |
 
-Put $\Delta T$ on the horizontal axis and $N$ on the vertical axis. Plot both years and label them.
+Put $\Delta T$ on the horizontal axis and $N$ on the vertical axis.
 
 <div class="ask">
 
@@ -139,7 +139,7 @@ Which way does the model move as it warms? Has it reached energy balance by year
 
 </div>
 
-<div class="footnote">Rounded for the board. CESM2 gives year 1 at (0.8 K, 7.7 W m⁻²) and year 50 at (5.6 K, 2.7 W m⁻²).</div>
+<div class="footnote">Rounded values. CESM2 gives year 1 at (0.8 K, 7.7 W m⁻²) and year 50 at (5.6 K, 2.7 W m⁻²).</div>
 
 <!--
 {{NOTE6}}
@@ -147,9 +147,9 @@ Which way does the model move as it warms? Has it reached energy balance by year
 
 ---
 
-# Why fit a straight line?
+# Linear fit
 
-Recall the 0D energy balance model from Lecture 3.
+Recall the 0D energy balance model.
 
 $$
 C\frac{d\Delta T}{dt} = N = \Delta F - B\Delta T
@@ -173,15 +173,57 @@ The heat capacity C sets how fast the model moves along the line, not where the 
 
 ---
 
-# The 0D model under abrupt forcing
+# 1. Why does mixed-layer depth matter?
+
+The upper ocean exchanges heat with the atmosphere. In the 0D model, we represent it as a single layer with a uniform temperature. Its heat capacity per unit area is
+
+$$
+C = \rho_w c_{p,w} h,
+$$
+
+where $h$ is the layer depth, $\rho_w$ is seawater density, and $c_{p,w}$ is the specific heat capacity of seawater.
+
+With deep-ocean heat exchange turned off, the surface warming rate is
+
+$$
+\frac{d\Delta T}{dt}
+= \frac{N}{C}
+= \frac{\Delta F-B\Delta T}{\rho_w c_{p,w}h}.
+$$
+
+A deeper layer has more water to warm. Immediately after the forcing is applied, $\Delta T=0$, so the warming rate is $\Delta F/C$. **Doubling the depth halves the initial warming rate.**
+
+<!-- Both have N = ΔF − B × 3 K. The deeper run takes longer to reach 3 K. -->
+
+---
+
+# 2. Adding a deep ocean
+
+When the upper ocean transfers heat to the deep ocean, its warming rate becomes
+
+$$
+\frac{d\Delta T}{dt}
+= \frac{\underbrace{\Delta F-B\Delta T}_{\text{TOA imbalance }N}
+-\underbrace{\gamma(\Delta T-\Delta T_D)}_{\text{heat transfer to the deep ocean}}}{C}.
+$$
+
+$\Delta T_D$ is the deep-ocean warming, and $\gamma$ controls heat exchange between the layers. Heat transferred to the deep ocean still counts toward the climate system’s energy gain.
+
+---
+
+# 3. From surface warming to the Gregory diagram
 
 <EBMExplorer />
 
-<div class="footnote">C dΔT/dt = ΔF − BΔT − γ(ΔT − ΔT_D), after Held et al. (2010). Dots on the right panel mark every 10 years.</div>
+**Fast timescale** $\tau = C/(B+\gamma)$ is the e-folding time of the surface layer before the deep ocean warms. A deeper mixed layer (larger $C$) slows it; stronger restoring $B$ or deep-ocean uptake $\gamma$ speeds it up.
+
+<div class="footnote">Left: surface warming over time. Right: ΔT against the TOA imbalance N. Red dots mark 10-year intervals.</div>
 
 <!--
 {{NOTE8}}
 -->
+
+
 
 ---
 
@@ -208,7 +250,7 @@ The board points give $N=8-2\Delta T$, which reaches $N=0$ at **4 K**. At year 5
 
 <div class="ask">
 
-Prediction: with the same forcing and a shallower slope, where does the line cross N = 0?
+Predict: with the same forcing and a shallower slope, where does the line cross N = 0?
 
 </div>
 

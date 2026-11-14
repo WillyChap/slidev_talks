@@ -210,12 +210,9 @@ Mixed-layer model of Lecture 3 with an optional deep ocean, $C\,d\Delta T/dt = \
 </div>
 
 <!--
-Live demonstration. First change the mixed-layer depth: the curve on the left speeds up or slows down,
-and the line on the right does not change. Then change B and show that the horizontal intercept moves
-to dF/B. Then turn on deep-ocean uptake gamma: warming has a fast and a slow part, as in CESM2, but the
-Gregory line stays straight because N still equals dF - B dT. Finally overlay CESM2. With gamma near
-0.7 the time series can be made to look like CESM2, but the CESM2 points curve on the Gregory diagram,
-which no setting of this model can reproduce. That curvature is the subject of the last part.
+Live demonstration. Start with γ = 0 and the CESM2 overlay off. Increase the mixed-layer depth. On the left, warming slows. On the right, the 10-year dots move toward lower ΔT along the same line. Then increase B at fixed forcing. The line steepens and crosses N = 0 at a lower ΔT = ΔF/B.
+
+Turn on deep-ocean heat uptake. The surface warms quickly at first, followed by slower warming as the deep ocean adjusts. Since ΔF and B are fixed, N is still a linear function of ΔT. Overlay CESM2 and ask what would have to change in the model to reproduce the different early and late Gregory slopes.
 -->
 
 ---

@@ -7,6 +7,7 @@ Lecture slides built with [Slidev](https://sli.dev). Published at
 | Deck | Source | Theme | URL |
 |---|---|---|---|
 | Gregory diagrams | `gregory-atoc.md`, generated from `gregory/atoc_template.md` | `themes/atoc4870` (local) | `/slidev_talks/gregory/` |
+| CAMulator overview (AI-Geo seminar) | `camulator-aigeo.md` | `slidev-theme-cu-boulder` | `/slidev_talks/camulator-aigeo/` |
 | Gregory diagrams | `gregory-lecture.md` | `slidev-theme-cu-boulder` (npm, from GitHub) | `/slidev_talks/gregory-cu/` |
 
 ## Run locally

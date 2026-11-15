@@ -29,6 +29,7 @@ jobs:
       # One folder per deck. --base must match the URL path: /<repo>/<folder>/
       - run: npx slidev build gregory-atoc.md    --base /slidev_talks/gregory/    --out _site/gregory
       - run: npx slidev build gregory-lecture.md --base /slidev_talks/gregory-cu/ --out _site/gregory-cu
+      - run: npx slidev build camulator-aigeo.md --base /slidev_talks/camulator-aigeo/ --out _site/camulator-aigeo
       - run: cp site/index.html _site/index.html
       - uses: actions/upload-pages-artifact@v3
         with:

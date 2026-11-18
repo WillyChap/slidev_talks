@@ -1,37 +1,31 @@
 <script setup lang="ts">
-// Energy balance model under abrupt forcing, with an optional deep-ocean layer (Held et al. 2010).
-//   C   dT/dt  = F - B T - gamma (T - T_D)
-//   C_D dT_D/dt =          gamma (T - T_D)
-//   N = F - B T   (net downward TOA flux)
-// gamma = 0 gives the 0D model of Lecture 3. C is set from a mixed-layer depth h.
+// 0D energy balance model (slab ocean) under abrupt forcing, as in Lecture 3.
+//   C dT/dt = N = F - B T   (N: net downward TOA flux)
+// C is set from a mixed-layer depth h.
 import { computed, ref } from 'vue'
 import data from '../gregory/data/cesm2_gregory.json'
 
 const F = ref(8.0)       // W m-2
 const B = ref(1.0)       // W m-2 K-1
 const h = ref(75)        // m
-const gamma = ref(0.0)   // W m-2 K-1
 const showCesm = ref(false)
 
 const RHO_CP = 1025 * 3990          // J m-3 K-1, sea water
 const SEC_YR = 3.156e7
 const C = computed(() => RHO_CP * h.value / SEC_YR)   // W yr m-2 K-1
-const CD = 100                                       // W yr m-2 K-1, about 800 m of ocean
 const YEARS = 150
 
 const run = computed(() => {
   const dt = 0.05
-  let T = 0, TD = 0
+  let T = 0
   const out: { t: number, T: number, N: number }[] = [{ t: 0, T: 0, N: F.value }]
   for (let k = 1; k <= YEARS / dt; k++) {
-    const up = gamma.value * (T - TD)
-    T += dt * (F.value - B.value * T - up) / C.value
-    TD += dt * up / CD
+    T += dt * (F.value - B.value * T) / C.value
     if (k % Math.round(1 / dt) === 0) out.push({ t: Math.round(k * dt), T, N: F.value - B.value * T })
   }
   return out
 })
-const tau = computed(() => C.value / (B.value + gamma.value))
+const tau = computed(() => C.value / B.value)
 const Teq = computed(() => F.value / B.value)
 const cesm = data.year.map((y: number, i: number) => ({ t: y - 0.5, T: data.dT[i], N: data.N[i] }))
   .filter(p => p.t <= YEARS)
@@ -84,10 +78,9 @@ const pathG = computed(() => path(run.value.map(p => ({ x: px(Math.min(p.T, TMAX
       <label>Forcing ΔF <b>{{ F.toFixed(1) }} W m⁻²</b><input type="range" min="1" max="10" step="0.1" v-model.number="F" /></label>
       <label>Restoring B <b>{{ B.toFixed(2) }} W m⁻² K⁻¹</b><input type="range" min="0.4" max="3" step="0.05" v-model.number="B" /></label>
       <label>Mixed layer <b>{{ h }} m</b><input type="range" min="20" max="300" step="5" v-model.number="h" /></label>
-      <label>Deep-ocean uptake γ <b>{{ gamma.toFixed(2) }} W m⁻² K⁻¹</b><input type="range" min="0" max="1.5" step="0.05" v-model.number="gamma" /></label>
       <label class="chk"><input type="checkbox" v-model="showCesm" /> Overlay CESM2 years 1–150</label>
       <div class="read">Equilibrium ΔT = ΔF/B = <b>{{ Teq.toFixed(1) }} K</b><br />
-        Fast timescale C/(B+γ) = <b>{{ tau.toFixed(0) }} yr</b></div>
+        Timescale C/B = <b>{{ tau.toFixed(0) }} yr</b></div>
     </div>
   </div>
 </template>

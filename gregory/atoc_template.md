@@ -183,7 +183,7 @@ $$
 
 where $h$ is the layer depth, $\rho_w$ is seawater density, and $c_{p,w}$ is the specific heat capacity of seawater.
 
-With deep-ocean heat exchange turned off, the surface warming rate is
+The surface warming rate is
 
 $$
 \frac{d\Delta T}{dt}
@@ -197,25 +197,11 @@ A deeper layer has more water to warm. Immediately after the forcing is applied,
 
 ---
 
-# 2. Adding a deep ocean
-
-When the upper ocean transfers heat to the deep ocean, its warming rate becomes
-
-$$
-\frac{d\Delta T}{dt}
-= \frac{\underbrace{\Delta F-B\Delta T}_{\text{TOA imbalance }N}
--\underbrace{\gamma(\Delta T-\Delta T_D)}_{\text{heat transfer to the deep ocean}}}{C}.
-$$
-
-$\Delta T_D$ is the deep-ocean warming, and $\gamma$ controls heat exchange between the layers. Heat transferred to the deep ocean still counts toward the climate system’s energy gain.
-
----
-
-# 3. From surface warming to the Gregory diagram
+# 2. From surface warming to the Gregory diagram
 
 <EBMExplorer />
 
-**Fast timescale** $\tau = C/(B+\gamma)$ is the e-folding time of the surface layer before the deep ocean warms. A deeper mixed layer (larger $C$) slows it; stronger restoring $B$ or deep-ocean uptake $\gamma$ speeds it up.
+**Timescale** $\tau = C/B$ is the e-folding time of the warming: after $\tau$ years the model has covered about 63% of the way to $\Delta F/B$. A deeper mixed layer (larger $C$) slows it; stronger restoring $B$ speeds it up.
 
 <div class="footnote">Left: surface warming over time. Right: ΔT against the TOA imbalance N. Red dots mark 10-year intervals.</div>
 
@@ -224,6 +210,24 @@ $\Delta T_D$ is the deep-ocean warming, and $\gamma$ controls heat exchange betw
 -->
 
 
+
+---
+
+# 3. A slab ocean with weather
+
+<SlabExplorer />
+
+<div class="ask">
+
+When has this run reached equilibrium, and how can you tell? Why do ΔT and N keep varying afterwards?
+
+</div>
+
+<div class="footnote">Slab model with random year-to-year heat-flux noise; 60 annual means after an abrupt CO₂ doubling, the setup of HW5 Part 1. Darker dots are later years.</div>
+
+<!--
+This is the setup of Part 1 of the homework: a slab ocean, CO2 doubled at year 0, 60 years of annual means. Start with the noise at zero: the run is the smooth curve from the last slide and settles within a few timescales. Turn the noise up to about 0.6 W m-2 and press New run a few times. The equilibrium is the same, but individual years scatter, and late years pile up in a cloud around N = 0 instead of sitting on a point. Ask how they would decide when the run has reached equilibrium from these three plots alone. Then switch on the fit and press New run again: the estimates of forcing, B and equilibrium warming change from run to run, which is why they should explain their method and its uncertainty in the homework. If someone notices that the fitted forcing usually comes out a little low: the same noise that changes N also warms the slab, which flattens the fitted slope. Do not answer the homework questions here; the prompts on the slide are the same ones they will write up.
+-->
 
 ---
 
@@ -300,7 +304,7 @@ By years 950–999 CESM2 has warmed 11.3 K, above the 10.3 K from years 1–150.
 
 ### Methods
 
-Gregory et al. (2004), *GRL* 31, L03205. Held et al. (2010), *J. Climate* 23, 2418–2427.
+Gregory et al. (2004), *GRL* 31, L03205.
 
 ### CESM2 and model sensitivity
 

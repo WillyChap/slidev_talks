@@ -192,9 +192,8 @@ With fixed forcing and constant $B$, plotting $N$ against $\Delta T$ gives a str
 <!--
 The relation N = dF - B dT does not contain time or heat capacity, which is why the diagram works for
 a model whose ocean we do not need to describe. Solving the ODE gives an exponential approach with
-timescale C/B, a few years for a 75 m mixed layer. A real ocean has a deep reservoir as well, which
-gives a second timescale of centuries. Both are explored on the next slide. Stress that the straight
-line is an assumption about B, and we will test it with CESM2.
+timescale C/B, a few years for a 75 m mixed layer. This is explored on the next slides. Stress that
+the straight line is an assumption about B, and we will test it with CESM2.
 -->
 
 ---
@@ -205,14 +204,14 @@ line is an assumption about B, and we will test it with CESM2.
 
 <div class="caption">
 
-Mixed-layer model of Lecture 3 with an optional deep ocean, $C\,d\Delta T/dt = \Delta F - B\Delta T - \gamma(\Delta T - \Delta T_D)$ (Held et al. 2010). Dots on the right panel mark every 10 years.
+Mixed-layer (slab) model of Lecture 3, $C\,d\Delta T/dt = \Delta F - B\Delta T$. Dots on the right panel mark every 10 years.
 
 </div>
 
 <!--
-Live demonstration. Start with γ = 0 and the CESM2 overlay off. Increase the mixed-layer depth. On the left, warming slows. On the right, the 10-year dots move toward lower ΔT along the same line. Then increase B at fixed forcing. The line steepens and crosses N = 0 at a lower ΔT = ΔF/B.
+Live demonstration. Start with the CESM2 overlay off. Increase the mixed-layer depth. On the left, warming slows. On the right, the 10-year dots move toward lower ΔT along the same line. Then increase B at fixed forcing. The line steepens and crosses N = 0 at a lower ΔT = ΔF/B.
 
-Turn on deep-ocean heat uptake. The surface warms quickly at first, followed by slower warming as the deep ocean adjusts. Since ΔF and B are fixed, N is still a linear function of ΔT. Overlay CESM2 and ask what would have to change in the model to reproduce the different early and late Gregory slopes.
+Overlay CESM2 and ask what would have to change in the model to reproduce the different early and late Gregory slopes. No setting of this model bends the line; that curvature is the subject of the last part.
 -->
 
 ---
@@ -302,7 +301,6 @@ radiative response per kelvin is weak, so the global B decreases with time.
 
 - Gregory, J. M., et al. (2004). A new method for diagnosing radiative forcing and climate sensitivity. *Geophys. Res. Lett.*, 31, L03205. [doi:10.1029/2003GL018747](https://doi.org/10.1029/2003GL018747)
 - He, et al. (2026). CESM2 time series and Gregory diagram, Figures 1 and 2. *J. Geophys. Res. Atmos.* [doi:10.1029/2026JD046855](https://doi.org/10.1029/2026JD046855)
-- Held, I. M., et al. (2010). Probing the fast and slow components of global warming by returning abruptly to preindustrial forcing. *J. Climate*, 23, 2418–2427.
 - Gettelman, A., et al. (2019). High climate sensitivity in the Community Earth System Model version 2 (CESM2). *Geophys. Res. Lett.*, 46, 8329–8337.
 - Rugenstein, M., et al. (2020). Equilibrium climate sensitivity estimated by equilibrating climate models. *Geophys. Res. Lett.*, 47, e2019GL083898.
 - Zelinka, M. D., et al. (2020). Causes of higher climate sensitivity in CMIP6 models. *Geophys. Res. Lett.*, 47, e2019GL085782.

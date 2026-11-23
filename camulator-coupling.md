@@ -1,6 +1,6 @@
 ---
 theme: cu-boulder
-title: "Coupling a machine-learning atmosphere to an ocean"
+title: "A machine-learning atmosphere in a coupled climate model"
 coverAuthor: "Will Chapman"
 coverDate: "AI-Geo Seminar, CU Boulder · Fall 2026"
 mdc: true
@@ -19,9 +19,9 @@ themeConfig:
     hideOnCover: true
 ---
 
-# Coupling a machine-learning atmosphere to an ocean and sea ice
+# A machine-learning atmosphere in a coupled climate model
 
-## CAMulator inside CESM: what works, what fails, and what comes next
+## CAMulator, CESM, and the physics between Python and Fortran
 
 <img src="/camulator/globe.png" class="cm-cover-globe" alt="Globe rendered from a CAMulator simulation" />
 

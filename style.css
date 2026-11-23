@@ -47,3 +47,7 @@
 .cm-fig-train-b { max-height: 120px; margin-top: 0.6rem; }
 .cm-cols-wide { grid-template-columns: 1.3fr 1fr; }
 .cm-fig-short { max-height: 225px; }
+
+.cm-couple-big { font-size: 0.82rem; gap: 0.35rem; margin-top: 0.6rem; }
+.cm-couple-big .box { padding: 0.5rem 0.6rem; }
+.cm-fig-tall { max-height: 292px; }

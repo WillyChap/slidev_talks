@@ -11,7 +11,9 @@
     "atoc": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev gregory-atoc.md --remote",
     "atoc:build": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev build gregory-atoc.md --out dist-atoc",
     "camulator": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev camulator-aigeo.md --remote",
-    "camulator:export": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev export camulator-aigeo.md"
+    "camulator:export": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev export camulator-aigeo.md",
+    "coupling": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev camulator-coupling.md --remote",
+    "coupling:export": "PATH=\"$PWD/.node-env/bin:$PATH\" slidev export camulator-coupling.md"
   },
   "overrides": {
     "floating-vue": "5.2.2"

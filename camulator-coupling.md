@@ -13,9 +13,9 @@ themeConfig:
     sections:
       - { label: Background, start: 2, end: 5 }
       - { label: The emulator, start: 6, end: 9 }
-      - { label: Coupling, start: 10, end: 14 }
-      - { label: Coupled climate, start: 15, end: 20 }
-      - { label: Next, start: 21, end: 22 }
+      - { label: Coupling, start: 10, end: 15 }
+      - { label: Coupled climate, start: 16, end: 21 }
+      - { label: Next, start: 22, end: 23 }
     hideOnCover: true
 ---
 
@@ -66,19 +66,19 @@ The coupled system was built by Yuanpu Li, a postdoc in the group, and most of t
 <div class="cm-right">
 
 - The globe is divided into boxes about 100 km wide, stacked in layers.
-- Separate programs for the atmosphere, ocean, land and sea ice step the physics forward every 30 minutes.
-- A coupler passes heat, water and momentum between them.
+- Separate programs for the atmosphere, ocean, land and sea ice step the physics forward and exchange heat, water and momentum through a coupler.
 - One simulated year of CESM2 costs 3,750 core-hours; the atmosphere is the most expensive part.
+- With CAMulator as the atmosphere, the coupled model runs 55–60 simulated years per day, about 10× faster than CESM2.
 
 </div>
 
-<div class="cm-src">CESM2 on NCAR's Derecho supercomputer, nominal 1° grid.</div>
+<div class="cm-src">CESM2 on NCAR's Derecho supercomputer, nominal 1° grid. Coupled CAMulator: 2 CPU nodes and 1 GPU.</div>
 
 </div>
 </div>
 
 <!--
-A climate model divides the globe into boxes, about a hundred kilometres across here, stacked in layers from the ocean floor to the upper atmosphere. Separate programs solve the physics of the atmosphere, the ocean, the land and the sea ice, each stepping forward in time. A component called the coupler passes heat, water and momentum between them. One simulated year of NCAR's model, CESM2, costs 3,750 core-hours, and climate questions need hundreds or thousands of simulated years. The atmosphere is the most expensive component, so it is the one we replace with a neural network.
+A climate model divides the globe into boxes, about a hundred kilometres across here, stacked in layers from the ocean floor to the upper atmosphere. Separate programs solve the physics of the atmosphere, the ocean, the land and the sea ice, each stepping forward in time. A component called the coupler passes heat, water and momentum between them. One simulated year of NCAR's model, CESM2, costs 3,750 core-hours, and climate questions need hundreds or thousands of simulated years. The atmosphere is the most expensive component, so we replace it with a neural network. With the emulator as the atmosphere, the coupled model runs 55 to 60 simulated years per day on two CPU nodes and one GPU, about ten times faster than CESM2. The rest of the talk is about whether that faster model gives the right climate.
 -->
 
 ---
@@ -237,7 +237,7 @@ That brings us to the main question. In training, the ocean was a fixed record. 
 - CESM has a data atmosphere: a component that normally reads observed weather from files.
 - We modified it to wait for a flag, read the emulator's file, and write the ocean state back.
 - The Python server never calls Fortran, and CESM never imports PyTorch.
-- 55–60 simulated years per day on 2 CPU nodes and 1 GPU, about 10× faster than CESM2.
+- Most of the wall-clock time is now spent in the ocean and sea-ice models.
 
 </div>
 
@@ -247,7 +247,7 @@ That brings us to the main question. In training, the ocean was a fixed record. 
 <div class="cm-src">CESM2.1.5 with the POP2 ocean and CICE5 sea-ice models. Server and handshake: Yuanpu Li and Will Chapman.</div>
 
 <!--
-The two halves never share memory. CESM has a component called the data atmosphere, normally used to drive the ocean with observed weather read from files. We modified it so that every six model hours it writes the sea-surface temperature and ice fraction to a file, sets a flag, and waits. The Python server sees the flag, runs one emulator step on the GPU, writes the atmospheric fields to a file and sets its own flag. The Fortran side reads them and hands them to the coupler. This keeps the two code bases independent, and the system runs 55 to 60 simulated years per day.
+The two halves never share memory. CESM has a component called the data atmosphere, normally used to drive the ocean with observed weather read from files. We modified it so that every six model hours it writes the sea-surface temperature and ice fraction to a file, sets a flag, and waits. The Python server sees the flag, runs one emulator step on the GPU, writes the atmospheric fields to a file and sets its own flag. The Fortran side reads them and hands them to the coupler. This keeps the two code bases independent, and most of the wall-clock time is now spent in the Fortran ocean and sea ice rather than in the atmosphere.
 -->
 
 ---
@@ -330,6 +330,31 @@ Fixing the first error moved the ocean from 0.71 K too cold to 0.14 K too warm, 
 
 <!--
 The first coupled runs were too cold everywhere, and the natural suspect was the neural network. It was not. Each of these errors sat in the code that passes fields between Python and Fortran: a temperature taken from the wrong level, a constant ocean reflectivity, and winds weakened by interpolating them twice. Each is comparable to or larger than the energy imbalance behind present-day warming. We found them by rebuilding the coupler's flux calculation in Python and checking it against the coupler's own output. Coupling an emulator is an interface problem as much as a learning problem.
+-->
+
+---
+
+# Coupled sea ice in the Arctic
+
+<div class="cm-cols">
+<div>
+
+<video src="/camulator/coupled_arctic_seaice_2028.mp4" class="cm-video" autoplay loop muted playsinline></video>
+
+<div class="cm-src">Coupled run, 2028: sea-ice thickness, sea-surface temperature anomaly and precipitation over the Arctic.</div>
+
+</div>
+<div class="cm-right">
+
+- The sea-ice model grows and melts ice from the fluxes the coupler computes from CAMulator's state.
+- Ice thins in summer, opens along the coasts, and refreezes in autumn.
+- Correcting the temperature hand-over moved September Arctic ice from 8.8 to 6.5 million km².
+
+</div>
+</div>
+
+<!--
+Sea ice is where the interface errors showed most clearly. The sea-ice model is fully physical and responds only to the fluxes the coupler computes from the emulator's state. The movie shows one year of the coupled Arctic: the ice thins through the summer, open water appears along the coasts, and the pack refreezes in autumn. Because the ice accumulates the energy balance over a whole season, small flux errors become large differences in ice. The temperature hand-over error alone added more than two million square kilometres of September ice.
 -->
 
 ---
@@ -497,26 +522,3 @@ Yuanpu Li, Sean Heslin, Charlie Becker, Aiden Pape, Ona Melvin, Eric Gosnell, Ta
 To summarise: a neural-network atmosphere can drive the CESM ocean and sea ice for decades, with a mean climate close to the physical model and warming that follows the forcing beyond the training years. Most of the early failures were in the interface between Python and Fortran. The remaining ones, a weak El Niño and the response to carbon dioxide, come from responses the emulator learned from a single simulation, and the next round trains those responses against the physical model directly. I am happy to take questions.
 -->
 
----
-
-# Backup: coupled sea ice in the Arctic
-
-<div class="cm-cols">
-<div>
-
-<video src="/camulator/coupled_arctic_seaice_2028.mp4" class="cm-video" autoplay loop muted playsinline></video>
-
-<div class="cm-src">Coupled run, 2028: sea-ice thickness, sea-surface temperature anomaly and precipitation over the Arctic.</div>
-
-</div>
-<div class="cm-right">
-
-- The sea-ice model grows and melts ice from the fluxes the coupler computes from CAMulator's state.
-- Correcting the temperature hand-over moved September Arctic ice from 8.8 to 6.5 million km².
-
-</div>
-</div>
-
-<!--
-Backup for questions about sea ice. The sea-ice model is fully physical and responds only to the fluxes the coupler computes from the emulator's state. It accumulates the energy balance over a season, so small flux errors become large differences in ice.
--->

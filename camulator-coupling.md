@@ -344,17 +344,19 @@ The first coupled runs were too cold everywhere, and the natural suspect was the
 <div class="cm-src">Coupled run, 2028: sea-ice thickness, sea-surface temperature anomaly and precipitation over the Arctic.</div>
 
 </div>
-<div class="cm-right">
+<div>
 
-- The sea-ice model grows and melts ice from the fluxes the coupler computes from CAMulator's state.
-- Ice thins in summer, opens along the coasts, and refreezes in autumn.
-- Correcting the temperature hand-over moved September Arctic ice from 8.8 to 6.5 million km².
+<img src="/coupling/ice_series.png" class="cm-fig-col cm-fig-ice" alt="Arctic sea-ice area in March and September, 1981 to 2040, coupled CAMulator against 10 CESM2 runs" />
+
+<div class="cm-src">Arctic sea-ice area, 1981–2039. Grey: 10 CESM2 runs (higher-emissions scenario after 2015).</div>
 
 </div>
 </div>
+
+The seasonal cycle and decline follow CESM2; the run has 4 % more ice in March and 30 % more in September (1981–2014).
 
 <!--
-Sea ice is where the interface errors showed most clearly. The sea-ice model is fully physical and responds only to the fluxes the coupler computes from the emulator's state. The movie shows one year of the coupled Arctic: the ice thins through the summer, open water appears along the coasts, and the pack refreezes in autumn. Because the ice accumulates the energy balance over a whole season, small flux errors become large differences in ice. The temperature hand-over error alone added more than two million square kilometres of September ice.
+The sea-ice model is fully physical and responds only to the fluxes the coupler computes from the emulator's state. The movie shows one year of the coupled Arctic: the ice thins through the summer, open water appears along the coasts, and the pack refreezes in autumn. The time series shows that this holds over decades. The winter maximum and the summer minimum both follow the range of ten CESM2 runs and decline at about the same rate. The coupled run has somewhat too much ice, 4 percent in March and 30 percent in September over 1981 to 2014, with the September excess largest in the 2000s.
 -->
 
 ---

@@ -11,11 +11,11 @@ themeConfig:
   department: "Department of Atmospheric & Oceanic Sciences"
   footerNav:
     sections:
-      - { label: Background, start: 2, end: 5 }
-      - { label: The emulator, start: 6, end: 9 }
-      - { label: Coupling, start: 10, end: 15 }
-      - { label: Coupled climate, start: 16, end: 21 }
-      - { label: Next, start: 22, end: 23 }
+      - { label: Background, start: 2, end: 6 }
+      - { label: The emulator, start: 7, end: 10 }
+      - { label: Coupling, start: 11, end: 16 }
+      - { label: Coupled climate, start: 17, end: 22 }
+      - { label: Next, start: 23, end: 24 }
     hideOnCover: true
 ---
 
@@ -79,6 +79,18 @@ The coupled system was built by Yuanpu Li, a postdoc in the group, and most of t
 
 <!--
 A climate model divides the globe into boxes, about a hundred kilometres across here, stacked in layers from the ocean floor to the upper atmosphere. Separate programs solve the physics of the atmosphere, the ocean, the land and the sea ice, each stepping forward in time. A component called the coupler passes heat, water and momentum between them. One simulated year of NCAR's model, CESM2, costs 3,750 core-hours, and climate questions need hundreds or thousands of simulated years. The atmosphere is the most expensive component, so we replace it with a neural network. With the emulator as the atmosphere, the coupled model runs 55 to 60 simulated years per day on two CPU nodes and one GPU, about ten times faster than CESM2. The rest of the talk is about whether that faster model gives the right climate.
+-->
+
+---
+
+# Cost and energy of a coupled ensemble
+
+<div class="cm-lead">Coupled CAMulator: 55–60 simulated years per day on 2 Derecho nodes and 1 GPU, about 10× faster than CESM2 and 30× fewer core-hours.</div>
+
+<CarbonCalc />
+
+<!--
+Here is what the speed buys. Coupled to the CESM ocean and sea-ice models, the emulator runs 55 to 60 simulated years per day without any optimisation, about ten times faster than CESM2, and it uses about thirty times fewer core-hours. Most of the remaining time is spent in the ocean and sea ice, so the atmosphere is no longer the expensive part. The panel converts core-hours into energy and carbon for an ensemble the size of the CESM2 Large Ensemble. Those numbers depend on assumptions about hardware power and the electricity grid, and the assumptions are the sliders.
 -->
 
 ---
@@ -164,9 +176,9 @@ CAMulator takes the state of the atmosphere, winds, temperature and moisture on 
 
 # Training for stability over long runs
 
-<img src="/camulator/three_step_loss.png" class="cm-fig-train" alt="Three-step rollout: the network applied three times, with a squared error against CESM at each step" />
+<img src="/camulator/three_step_loss.png" class="cm-fig-train-lg" alt="Three-step rollout: the network applied three times, with a squared error against CESM at each step" />
 
-<img src="/camulator/conservation_blocks.png" class="cm-fig-train cm-fig-train-b" alt="Network output passed through post-blocks that enforce tracer positivity, dry-air mass, water and energy conservation" />
+<img src="/camulator/conservation_blocks.png" class="cm-fig-train-lg cm-fig-train-lg-b" alt="Network output passed through post-blocks that enforce tracer positivity, dry-air mass, water and energy conservation" />
 
 <div class="cm-src">Top: the loss sums the squared error over three consecutive six-hour steps. Bottom: final layers rescale the output so that global dry-air mass, water and energy are conserved; they are trained with the network.</div>
 
@@ -348,15 +360,15 @@ The first coupled runs were too cold everywhere, and the natural suspect was the
 
 <img src="/coupling/ice_series.png" class="cm-fig-col cm-fig-ice" alt="Arctic sea-ice area in March and September, 1981 to 2040, coupled CAMulator against 10 CESM2 runs" />
 
-<div class="cm-src">Arctic sea-ice area, 1981–2039. Grey: 10 CESM2 runs (higher-emissions scenario after 2015).</div>
+<div class="cm-src">Arctic sea-ice area, 1981–2039. Grey: 5–95 % of 100 CESM2 runs (higher-emissions scenario after 2015).</div>
 
 </div>
 </div>
 
-The seasonal cycle and decline follow CESM2; the run has 4 % more ice in March and 30 % more in September (1981–2014).
+The seasonal cycle and decline follow CESM2; the run has 5 % more ice in March and 26 % more in September (1981–2014).
 
 <!--
-The sea-ice model is fully physical and responds only to the fluxes the coupler computes from the emulator's state. The movie shows one year of the coupled Arctic: the ice thins through the summer, open water appears along the coasts, and the pack refreezes in autumn. The time series shows that this holds over decades. The winter maximum and the summer minimum both follow the range of ten CESM2 runs and decline at about the same rate. The coupled run has somewhat too much ice, 4 percent in March and 30 percent in September over 1981 to 2014, with the September excess largest in the 2000s.
+The sea-ice model is fully physical and responds only to the fluxes the coupler computes from the emulator's state. The movie shows one year of the coupled Arctic: the ice thins through the summer, open water appears along the coasts, and the pack refreezes in autumn. The time series shows that this holds over decades. The winter maximum and the summer minimum both follow the range of a hundred CESM2 runs and decline at about the same rate. The coupled run has somewhat too much ice, 5 percent in March and 26 percent in September over 1981 to 2014, with the September excess largest in the 2000s.
 -->
 
 ---

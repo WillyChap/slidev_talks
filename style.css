@@ -52,3 +52,5 @@
 .cm-couple-big .box { padding: 0.5rem 0.6rem; }
 .cm-fig-tall { max-height: 292px; }
 .cm-cols .cm-fig-ice { max-height: 255px; }
+.cm-fig-train-lg { width: 100%; display: block; margin: 0 auto; max-height: 222px; object-fit: contain; background: white; }
+.cm-fig-train-lg-b { max-height: 140px; margin-top: 0.2rem; }

@@ -76,3 +76,12 @@
 .cm-hs .every { text-align: center; font-weight: 700; color: #2E4A6B; font-size: 0.78rem; }
 .cm-cols-hs { grid-template-columns: 1.75fr 1fr; gap: 2rem; }
 .cm-cols-hs .cm-right { font-size: 0.76em; }
+.cm-three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 0.8rem 0 1.4rem; min-height: 230px; }
+.cm-three > div { border-top: 4px solid var(--cu-gold); background: #FAF8F2; padding: 0.9rem 1rem; display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.9rem; line-height: 1.3; }
+.cm-three .big { font-size: 1.8rem; font-weight: 700; color: #2E4A6B; line-height: 1.1; }
+.cm-three b { font-size: 1rem; }
+.cm-three em { font-style: normal; color: var(--cu-text-muted); font-size: 0.8rem; margin-top: auto; }
+.cm-ladder { font-size: 0.95rem; gap: 0.5rem; }
+.cm-ladder .box { text-align: left; padding: 0.7rem 0.8rem; }
+.cm-ladder .box small { font-size: 0.85em; display: block; margin-top: 0.2rem; }
+.cm-ladder .arrows span { font-size: 0.75rem; }

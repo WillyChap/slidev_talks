@@ -11,11 +11,11 @@ themeConfig:
   department: "Department of Atmospheric & Oceanic Sciences"
   footerNav:
     sections:
-      - { label: Background, start: 2, end: 6 }
-      - { label: The emulator, start: 7, end: 10 }
-      - { label: Coupling, start: 11, end: 16 }
-      - { label: Coupled climate, start: 17, end: 22 }
-      - { label: Next, start: 23, end: 24 }
+      - { label: Motivation, start: 2, end: 7 }
+      - { label: The emulator, start: 8, end: 12 }
+      - { label: Coupling, start: 13, end: 18 }
+      - { label: Coupled climate, start: 19, end: 24 }
+      - { label: Next, start: 25, end: 26 }
     hideOnCover: true
 ---
 
@@ -91,6 +91,91 @@ A climate model divides the globe into boxes, about a hundred kilometres across 
 
 <!--
 Here is what the speed buys. Coupled to the CESM ocean and sea-ice models, the emulator runs 55 to 60 simulated years per day without any optimisation, about ten times faster than CESM2, and it uses about thirty times fewer core-hours. Most of the remaining time is spent in the ocean and sea ice, so the atmosphere is no longer the expensive part. The panel converts core-hours into energy and carbon for an ensemble the size of the CESM2 Large Ensemble. Those numbers depend on assumptions about hardware power and the electricity grid, and the assumptions are the sliders.
+-->
+
+---
+
+# ML weather models now match physics models
+
+<div class="cm-cols">
+<div>
+
+<img src="/coupling/wb2_z500.png" class="cm-fig-col" alt="500-hPa height error against lead time for IFS HRES, the IFS ensemble mean and four machine-learning weather models, 2020" />
+
+</div>
+<div>
+
+<div class="cm-right">
+
+- At day 5, GraphCast's 500-hPa height error is 28 m and GenCast's ensemble mean 27 m, against 31 m for ECMWF's high-resolution forecast.
+- ECMWF has run a machine-learning model (AIFS) operationally since 2025.
+- They run in minutes on one GPU, and they will be part of weather forecasting.
+
+</div>
+
+<div class="cm-src">Global root-mean-square error against ERA5, 2020, 1.5° grid. Data: WeatherBench 2 (Rasp et al. 2024).</div>
+
+</div>
+</div>
+
+<!--
+Weather is where machine learning has already arrived. This is the WeatherBench 2 comparison, the community benchmark: the error of the 500-hectopascal height, the standard measure of the large-scale weather pattern, as a function of forecast lead time. The black line is ECMWF's flagship physics forecast. The coloured lines are machine-learning models trained on reanalysis. They match or beat it at every lead time, and an ensemble model, GenCast, matches ECMWF's physics ensemble. ECMWF now runs its own machine-learning model operationally. These models will be part of weather forecasting from here on.
+-->
+
+---
+
+# Climate is a different problem
+
+<div class="cm-three">
+  <div><div class="big">2.5–4 °C</div><b>Climate sensitivity</b><span>Warming per doubling of CO₂.</span><em>Largest unknown: how clouds respond</em></div>
+  <div><div class="big">−0.6 to −2.0 W m⁻²</div><b>Aerosols</b><span>Greenhouse warming masked by aerosols.</span><em>Largest unknown: aerosol effects on clouds</em></div>
+  <div><div class="big">30 %</div><b>Carbon uptake by land</b><span>Share of emitted CO₂ taken up by land; how will it change?</span><em>Largest unknown: plant and soil response</em></div>
+</div>
+
+Weather models are tested every day against observations. These three questions concern a climate we have not observed, so there are no training data for the answer; a climate model needs a physical path to it.
+
+<div class="cm-src">Three questions a climate model must answer, after T. Schneider. Likely ranges: IPCC AR6 WGI; land uptake: Global Carbon Budget.</div>
+
+<!--
+Climate is a different problem. A weather forecast is checked against what happens a few days later, millions of times. The questions a climate model exists to answer are about a climate we have not seen. How much warming do we get per doubling of carbon dioxide; the likely range is still 2.5 to 4 degrees, mostly because of clouds. How much warming are aerosols hiding. How much carbon will land keep absorbing. There is no training data for the answers, so a model has to get there through the right physical mechanisms. This framing is Tapio Schneider's, and it sets the bar for anything we call a climate model.
+-->
+
+---
+
+# Where ML climate emulation stands
+
+<div class="cm-cols">
+<div>
+
+<div class="cm-couple cm-couple-big cm-ladder">
+  <div class="box gpu">Shown<br /><small>run stably for decades and follow a forced historical trajectory</small></div>
+  <div class="arrows"><span>CAMulator (Chapman et al. 2025), ACE2 (Watt-Meyer et al. 2025)</span></div>
+  <div class="box">Open<br /><small>whether they respond to CO₂ and the ocean through the right mechanisms</small></div>
+  <div class="arrows"><span>in one training run, CO₂ and sea temperature rise together</span></div>
+</div>
+
+</div>
+<div>
+
+<div class="cm-right">
+
+Possible uses, from most to least certain:
+
+- Large ensembles and uncertainty within a trained scenario.
+- Long coupled runs, such as ocean spin-up.
+- New scenarios outside the training runs.
+
+</div>
+
+</div>
+</div>
+
+The field has a long way to go before climate emulation is where weather emulation is. Coupling to a physical ocean is one way to test it.
+
+<div class="cm-src">ACE2 reports that holding CO₂ fixed loses much of the near-surface warming trend (Watt-Meyer et al. 2025).</div>
+
+<!--
+So where does machine-learning climate emulation stand? Our emulator and others such as AI2's ACE2 can run for decades and follow the forced historical trajectory of the model they were trained on. What is not shown is that they get there for the right reasons. In a single training simulation, carbon dioxide and ocean temperature rise together, so a network can lean on either one. That makes some uses more certain than others: large ensembles within a trained scenario are the safest, long coupled runs are less certain, and new scenarios are the least certain. The field has a long way to go before climate is where weather is. The rest of the talk is one test of that: coupling the emulator to a physical ocean.
 -->
 
 ---
@@ -198,20 +283,6 @@ One continuous run of 51,100 steps from 1980. Annual means follow the physical m
 
 <!--
 Before coupling, the emulator has to run for decades on its own. Here the ocean is read from the training simulation, and the emulator runs 51,100 steps from a single initial state. Surface temperature, mid-level temperature, water vapour and precipitation follow the physical atmosphere year by year, including the trend. One quantity is wrong: the layer near twenty kilometres cools steadily. In broad terms the stand-alone emulator is a usable atmosphere, which is the precondition for everything that follows.
--->
-
----
-
-# The response to El Niño, ocean prescribed
-
-<img src="/camulator/enso_teleconnections.png" class="cm-fig-wide" alt="Composite 500 hPa height and precipitation differences for warm minus cold tropical Pacific winters, CAM6 and CAMulator" />
-
-Pattern correlation with the physical model: 0.95 for tropical rainfall and 0.82 for the North Pacific pressure pattern.
-
-<div class="cm-src">Ten warmest minus ten coldest tropical Pacific winters of 34, ocean prescribed. Top: pressure pattern near 5 km. Bottom: precipitation. Left: CESM atmosphere. Right: CAMulator.</div>
-
-<!--
-With the ocean prescribed, we can ask whether the emulator responds to El Niño correctly. During warm Pacific winters tropical rainfall shifts east, and a chain of high and low pressure arches over the North Pacific and North America. The emulator reproduces the rainfall shift with a pattern correlation of 0.95 against the physical model and the pressure pattern with 0.82. So the emulator responds to the ocean in the right places. Whether it responds with the right strength is a question only a coupled run can answer.
 -->
 
 ---
@@ -559,3 +630,16 @@ Yuanpu Li, Sean Heslin, Charlie Becker, Aiden Pape, Ona Melvin, Eric Gosnell, Ta
 To summarise: a neural-network atmosphere can drive the CESM ocean and sea ice for decades, with a mean climate close to the physical model and warming that follows the forcing beyond the training years. Most of the early failures were in the interface between Python and Fortran. The remaining ones, a weak El Niño and the response to carbon dioxide, come from responses the emulator learned from a single simulation, and the next round trains those responses against the physical model directly. I am happy to take questions.
 -->
 
+---
+
+# Backup: the response to El Niño, ocean prescribed
+
+<img src="/camulator/enso_teleconnections.png" class="cm-fig-wide" alt="Composite 500 hPa height and precipitation differences for warm minus cold tropical Pacific winters, CAM6 and CAMulator" />
+
+Pattern correlation with the physical model: 0.95 for tropical rainfall and 0.82 for the North Pacific pressure pattern.
+
+<div class="cm-src">Ten warmest minus ten coldest tropical Pacific winters of 34, ocean prescribed. Top: pressure pattern near 5 km. Bottom: precipitation. Left: CESM atmosphere. Right: CAMulator.</div>
+
+<!--
+With the ocean prescribed, we can ask whether the emulator responds to El Niño correctly. During warm Pacific winters tropical rainfall shifts east, and a chain of high and low pressure arches over the North Pacific and North America. The emulator reproduces the rainfall shift with a pattern correlation of 0.95 against the physical model and the pressure pattern with 0.82. So the emulator responds to the ocean in the right places. Whether it responds with the right strength is a question only a coupled run can answer.
+-->

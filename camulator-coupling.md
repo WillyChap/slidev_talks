@@ -64,7 +64,7 @@ The coupled system was built by Yuanpu Li, a postdoc in the group, and most of t
 <div class="cm-right">
 
 - The globe is divided into boxes about 100 km wide, stacked in layers.
-- Separate programs for the atmosphere, ocean, land and sea ice step the physics forward and exchange heat, water and momentum through a coupler.
+- Separate programs step the atmosphere, ocean, land and sea ice forward; a coupler passes heat, water and momentum between them.
 - One simulated year of CESM2 costs 3,750 core-hours; the atmosphere is the most expensive part.
 - With CAMulator as the atmosphere, the coupled model runs 55–60 simulated years per day, about 10× faster than CESM2.
 
@@ -83,7 +83,7 @@ A climate model divides the globe into boxes, about a hundred kilometres across 
 
 # Cost and energy of a coupled ensemble
 
-<div class="cm-lead">Coupled CAMulator: 55–60 simulated years per day on 2 Derecho nodes and 1 GPU, about 10× faster than CESM2 and 30× fewer core-hours.</div>
+<div class="cm-lead">Per simulated year: CESM2 uses 3,750 core-hours; coupled CAMulator uses 122 core-hours and 0.4 GPU-hours, about 30× fewer core-hours.</div>
 
 <CarbonCalc />
 
@@ -107,7 +107,7 @@ Here is what the speed buys. Coupled to the CESM ocean and sea-ice models, the e
 
 - At day 5, GraphCast's 500-hPa height error is 28 m and GenCast's ensemble mean 27 m, against 31 m for ECMWF's high-resolution forecast.
 - ECMWF has run a machine-learning model (AIFS) operationally since 2025.
-- They run in minutes on one GPU, and they will be part of weather forecasting.
+- A 10-day global forecast takes about a minute on one accelerator; these models will be part of forecasting.
 
 </div>
 
@@ -122,27 +122,21 @@ Weather is where machine learning has already arrived. This is the WeatherBench 
 
 ---
 
-# Climate is a different problem
+# What a climate model has to answer
 
-<div class="cm-wc">
-
-| | Weather | Climate |
-|---|---|---|
-| What is predicted | the next days of a known atmosphere | how climate changes when forcing changes |
-| How it is checked | against observations, every day | mostly it cannot be: that climate has not happened |
-| Training data | decades of reanalysis | one or a few simulations of one forced history |
-| What must be right | the trajectory | the response to forcing: clouds, aerosols, carbon uptake |
-
+<div class="cm-three">
+  <div><div class="big">2.5–4 °C</div><b>Climate sensitivity</b><span>How much does the planet warm per doubling of CO₂?</span><em>Hinges on how clouds change</em></div>
+  <div><div class="big">−0.6 to −2.0 W m⁻²</div><b>Aerosol forcing</b><span>How much greenhouse warming do aerosols mask?</span><em>Hinges on aerosol effects on clouds</em></div>
+  <div><div class="big">≈ 30 %</div><b>Land carbon uptake</b><span>Land absorbs about 30 % of emitted CO₂. Will it keep doing so?</span><em>Hinges on how plants and soils respond to warming</em></div>
 </div>
 
-Example: warming per doubling of CO₂ is still 2.5–4 °C (likely range), mostly because of how clouds respond. No training set contains the answer.
+Weather forecasts are checked against observations every day. These answers lie in a climate nobody has observed, so no training set contains them.
 
-<div class="cm-src">Framing after T. Schneider. Likely range: IPCC AR6 WGI.</div>
+<div class="cm-src">After T. Schneider. Likely ranges: IPCC AR6 WGI; land uptake: Global Carbon Budget.</div>
 
 <!--
-Climate is a different problem from weather. A weather forecast predicts the next few days of an atmosphere we already observe, and it is checked against reality every day, with decades of reanalysis to train on. A climate model is asked how the climate changes when the forcing changes, and that future has not happened, so there is nothing to check it against and nothing to train on for the answer. What has to be right is the response to forcing, which runs through processes such as clouds, aerosols and the carbon cycle. The warming per doubling of carbon dioxide is still uncertain between 2.5 and 4 degrees, mostly because of clouds. This way of framing the problem follows Tapio Schneider.
+Climate is a different problem from weather. A weather forecast is checked against what actually happens, every day, and trained on decades of reanalysis. A climate model is asked questions like these three. How much does the planet warm per doubling of carbon dioxide; the likely range is still 2.5 to 4 degrees, mostly because of clouds. How much warming are aerosols masking. Will the land keep absorbing about a third of our emissions. Each answer lies in a climate nobody has observed, so there is no training data for it, and a model has to reach it through the right physics. This framing follows Tapio Schneider.
 -->
-
 ---
 
 # Where ML climate emulation stands
@@ -275,7 +269,7 @@ That brings us to the main question. In training, the ocean was a fixed record. 
 - The ocean stores most of the climate system's heat and changes slowly.
 - El Niño, the largest year-to-year swing in climate, exists only because winds and ocean push on each other.
 - It shifts rainfall and temperature around the world every few years.
-- An atmosphere model that runs only over a prescribed ocean never has to get this loop right.
+- Over a prescribed ocean, an atmosphere model never has to get this loop right; coupled, it must.
 
 </div>
 
@@ -329,7 +323,7 @@ The ocean matters for two reasons. It holds most of the heat in the climate syst
 
 <div class="cm-right">
 
-- CESM has a data atmosphere that normally reads observed weather from files; we modified it to read the emulator's file instead.
+- CESM's data atmosphere normally reads observed weather from files; ours reads the emulator's file.
 - Each side writes a file, sets a flag, and waits for the other's flag.
 - The Python server never calls Fortran, and CESM never imports PyTorch.
 - The ocean and sea ice now take most of the time.
@@ -369,7 +363,7 @@ $$
 
 - The emulator also predicts its own surface fluxes, but over the ocean the coupler does not use them.
 - The coupler recomputes stress, heat and evaporation from the emulator's air near the surface.
-- So the emulator's near-surface state must be physically right, not only its flux outputs.
+- The emulator's near-surface air, not its flux outputs, drives the ocean.
 
 </div>
 
@@ -414,9 +408,9 @@ The first coupled runs were too cold everywhere, and the natural suspect was the
 
 <div class="cm-right">
 
-- The coupled system has run from 1981 to 2040 without failing or drifting away.
-- Ocean, sea ice and atmosphere exchange heat, water and momentum every six hours.
-- No correction to the exchanged fluxes is applied in the main run.
+- The coupled system has run from 1981 to 2040 without failing or drifting.
+- El Niño events, storms and the seasonal ice edge emerge from the coupled system.
+- No flux correction is applied.
 
 </div>
 
@@ -538,8 +532,9 @@ The main failure is El Niño. The grey histogram is fifty CESM2 runs that differ
 <div class="cm-right">
 
 - Mean easterly winds near the surface are 5.7 m s⁻¹ in the coupled emulator, against 4.9 m s⁻¹ in CESM.
-- Stress grows with the square of the wind, so stronger mean winds make the stress respond more to each wind change.
-- The CESM2 runs follow one line; the coupled runs sit on its extension.
+- Stress grows with the square of the wind, so the ocean gets a larger push for each change in wind.
+- Across 30 CESM2 runs the same relation holds; the coupled runs sit on its extension.
+- The fix is the emulator's mean wind, which is a training target.
 
 </div>
 
@@ -558,7 +553,7 @@ To find out why, we ran the coupler's stress formula offline on every six-hour s
 
 <img src="/coupling/co2_maps_mjja.png" class="cm-fig-wide" alt="Maps of the six-hour land surface temperature change per CO2 doubling for CAM6, CAMulator and DCN6, May to August" />
 
-In one training simulation CO₂ and temperature rise together, so a network can use CO₂ to tell the year. Raising only CO₂ warms land by 0.17 K in CESM, 0.12 K in CAMulator with the wrong pattern, and 0.69 K in a smaller emulator.
+In one training simulation CO₂ and temperature rise together, so a network can use CO₂ to tell the year. Raised alone, CO₂ warms land by 0.17 K in CESM, 0.12 K in CAMulator (wrong pattern) and 0.69 K in DCN6.
 
 <div class="cm-src">First six hours after CO₂ alone is raised, May–August, per CO₂ doubling. Emulators: 16 held-out states; CESM atmosphere: 10 starts. DCN6: a 173 M-parameter emulator in development.</div>
 

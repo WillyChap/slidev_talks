@@ -112,6 +112,11 @@ Weather is where machine learning has already arrived. This is the WeatherBench 
 
 - **Let climate emerge.** Repeated interactions produce weather, variability and the response to changing greenhouse gases.
 
+<div class="cm-grid">
+<GridGlobe />
+<div class="cap"><span v-click.hide="1">Each cell holds the state in a column of stacked levels.</span><span v-click="1">CAMulator works on the physical atmosphere's grid: 192 × 288 cells, 32 levels.</span></div>
+</div>
+
 </div>
 
 </div>

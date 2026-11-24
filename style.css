@@ -260,3 +260,12 @@
 .cm-ladder .slidev-vclick-hidden, .cm-unc .slidev-vclick-hidden, .cm-unc-end.slidev-vclick-hidden { opacity: 0; transform: translateY(10px); }
 .cm-unc .u { transform-origin: left center; transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s; }
 .cm-unc .row.slidev-vclick-hidden .u { transform: scaleX(0); }
+/* Gridded globe under the bullets on the coupled-model slide */
+.cm-grid { margin-top: 0.4rem; max-width: 330px; }
+.cm-grid .cap { display: grid; font-size: 0.68rem; color: var(--cu-text-muted); margin-top: 0.1rem; }
+.cm-grid .cap > span { grid-area: 1 / 1; transition: opacity 0.4s ease; }
+.cm-grid .cap > span.slidev-vclick-hidden { opacity: 0; }
+.cm-cols:has(.cm-grid) .cm-right { font-size: 0.78em; }
+.cm-cols:has(.cm-grid) .cm-right li { margin: 0.3rem 0; line-height: 1.45; }
+.cm-grid { max-width: none; margin-top: 0.3rem; }
+.cm-grid { width: 285px; margin: 0.1rem auto 0; }

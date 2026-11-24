@@ -230,15 +230,30 @@ That brings us to the main question. In training, the ocean was a fixed record. 
 
 # Fortran and Python exchange files
 
-<div class="cm-cols">
+<div class="cm-cols cm-cols-hs">
 <div>
 
-<div class="cm-couple cm-couple-big">
-  <div class="box gpu">CAMulator server (Python)<br /><small>atmosphere · 1 GPU</small></div>
-  <div class="arrows"><span>→ near-surface wind, temperature, humidity, radiation, rain</span><span>← sea-surface temperature, sea-ice fraction</span></div>
-  <div class="box">Data-atmosphere component (Fortran)<br /><small>reads and writes files, waits on a flag</small></div>
-  <div class="arrows"><span>⇅ CESM coupler (Fortran)</span></div>
-  <div class="box">Ocean + sea-ice models (Fortran)<br /><small>CPU nodes</small></div>
+<div class="cm-hs">
+  <div class="side fortran">
+    <div class="hdr">CESM · Fortran · CPUs</div>
+    <div class="cbox">Ocean (POP2)</div>
+    <div class="cbox">Sea ice (CICE5)</div>
+    <div class="cbox">Coupler: computes surface fluxes</div>
+    <div class="cbox da">Data atmosphere (modified)</div>
+    <div class="t">≈ 1.1 s per six-hour exchange</div>
+  </div>
+  <div class="mid">
+    <div class="arr r"><b>①</b> camulator_sst_in.nc<br/>+ go.flag<span>sea-surface temperature, ice fraction</span></div>
+    <div class="arr l"><b>②</b> camulator_cam_out.nc<br/>+ done.flag<span>wind, temperature, humidity, radiation, rain</span></div>
+    <div class="every">every 6 model hours</div>
+  </div>
+  <div class="side python">
+    <div class="hdr">CAMulator · Python · 1 GPU</div>
+    <div class="cbox gpu">Read the ocean state</div>
+    <div class="cbox gpu">One six-hour step of the network</div>
+    <div class="cbox gpu">Write the atmosphere state</div>
+    <div class="t">≈ 0.3 s per step</div>
+  </div>
 </div>
 
 </div>
@@ -246,20 +261,20 @@ That brings us to the main question. In training, the ocean was a fixed record. 
 
 <div class="cm-right">
 
-- CESM has a data atmosphere: a component that normally reads observed weather from files.
-- We modified it to wait for a flag, read the emulator's file, and write the ocean state back.
+- CESM has a data atmosphere that normally reads observed weather from files; we modified it to read the emulator's file instead.
+- Each side writes a file, sets a flag, and waits for the other's flag.
 - The Python server never calls Fortran, and CESM never imports PyTorch.
-- Most of the wall-clock time is now spent in the ocean and sea-ice models.
+- The ocean and sea ice now take most of the time.
 
 </div>
 
 </div>
 </div>
 
-<div class="cm-src">CESM2.1.5 with the POP2 ocean and CICE5 sea-ice models. Server and handshake: Yuanpu Li and Will Chapman.</div>
+<div class="cm-src">CESM2.1.5 with POP2 and CICE5; flags polled every 50 ms. Timing on one H100 GPU and two Derecho CPU nodes. Server and handshake: Yuanpu Li and Will Chapman.</div>
 
 <!--
-The two halves never share memory. CESM has a component called the data atmosphere, normally used to drive the ocean with observed weather read from files. We modified it so that every six model hours it writes the sea-surface temperature and ice fraction to a file, sets a flag, and waits. The Python server sees the flag, runs one emulator step on the GPU, writes the atmospheric fields to a file and sets its own flag. The Fortran side reads them and hands them to the coupler. This keeps the two code bases independent, and most of the wall-clock time is now spent in the Fortran ocean and sea ice rather than in the atmosphere.
+The two halves never share memory. CESM has a component called the data atmosphere, normally used to drive the ocean with observed weather read from files. We modified it so that every six model hours it writes the sea-surface temperature and ice fraction to a file and sets a flag. The Python server sees the flag, reads the ocean state, runs one six-hour step on the GPU, writes the atmospheric fields to a second file and sets its own flag. The Fortran side reads that file and hands the fields to the coupler, which computes the fluxes for the ocean and sea ice. A network step takes about 0.3 seconds; the ocean and sea ice take about a second, so the Fortran side now sets the pace.
 -->
 
 ---

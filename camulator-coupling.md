@@ -122,20 +122,25 @@ Weather is where machine learning has already arrived. This is the WeatherBench 
 
 ---
 
-# What a climate model has to answer
+# Physical climate models took 50 years
 
-<div class="cm-three">
-  <div><div class="big">2.5–4 °C</div><b>Climate sensitivity</b><span>How much does the planet warm per doubling of CO₂?</span><em>Hinges on how clouds change</em></div>
-  <div><div class="big">−0.6 to −2.0 W m⁻²</div><b>Aerosol forcing</b><span>How much greenhouse warming do aerosols mask?</span><em>Hinges on aerosol effects on clouds</em></div>
-  <div><div class="big">≈ 30 %</div><b>Land carbon uptake</b><span>Land absorbs about 30 % of emitted CO₂. Will it keep doing so?</span><em>Hinges on how plants and soils respond to warming</em></div>
+<div class="cm-wc cm-ladder-t">
+
+| What a climate model must do | Physical models | ML emulators today |
+|---|---|---|
+| Warm by the right amount per CO₂ doubling (climate sensitivity) | 1960s–70s | warm with CO₂; not yet shown to be for the right reason |
+| Exchange heat with a dynamic ocean (transient warming, El Niño) | 1970s–90s | this talk: stable for decades, El Niño too weak |
+| Account for the warming that aerosols mask | 1990s | aerosols are usually not an input |
+| Take up carbon on land and in the ocean | 2000s | not included |
+
 </div>
 
-Weather forecasts are checked against observations every day. These answers lie in a climate nobody has observed, so no training set contains them.
+None of these can be learned from observations of the future. Physical models added them one at a time over about 50 years; ML emulators are on the first rungs.
 
-<div class="cm-src">After T. Schneider. Likely ranges: IPCC AR6 WGI; land uptake: Global Carbon Budget.</div>
+<div class="cm-src">Framing after T. Schneider. Manabe & Wetherald (1967); Charney et al. (1979); Manabe & Bryan (1969); Mitchell et al. (1995); Cox et al. (2000).</div>
 
 <!--
-Climate is a different problem from weather. A weather forecast is checked against what actually happens, every day, and trained on decades of reanalysis. A climate model is asked questions like these three. How much does the planet warm per doubling of carbon dioxide; the likely range is still 2.5 to 4 degrees, mostly because of clouds. How much warming are aerosols masking. Will the land keep absorbing about a third of our emissions. Each answer lies in a climate nobody has observed, so there is no training data for it, and a model has to reach it through the right physics. This framing follows Tapio Schneider.
+What does a climate model have to do? This framing follows Tapio Schneider. It has to warm by the right amount when carbon dioxide doubles, which depends mostly on clouds. It has to exchange heat with a dynamic ocean, which sets how fast warming happens and produces El Niño. It has to account for the warming that aerosols mask. And it has to represent how much of our carbon the land and ocean take up. None of these can be learned from observations of the future. Physical climate models added them one at a time, from Manabe's radiative models in the 1960s to coupled carbon cycles around 2000, about fifty years of work. Machine-learning emulators warm with carbon dioxide but have not shown it is for the right reason, and coupling to a dynamic ocean is where this talk sits.
 -->
 ---
 

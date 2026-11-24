@@ -95,3 +95,8 @@
 .cm-unc .u { height: 0.75rem; border-radius: 0.4rem; background: linear-gradient(90deg, rgba(207,184,124,0.15), var(--cu-gold) 50%, rgba(207,184,124,0.15)); }
 .cm-unc .ax { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--cu-text-muted); border-top: 1px solid #999; padding-top: 0.15rem; }
 .cm-unc .side { margin-top: 0.4rem; border: 2px dashed #2E4A6B; border-radius: 6px; padding: 0.45rem 0.6rem; background: #F2F5F9; }
+.cm-ladder-t table { font-size: 0.78em; }
+.cm-ladder-t td, .cm-ladder-t th { padding: 0.38rem 0.6rem; }
+.cm-ladder-t td:first-child { white-space: normal; width: 38%; }
+.cm-ladder-t td:nth-child(2) { white-space: nowrap; color: #2E4A6B; font-weight: 700; }
+.cm-ladder-t td:nth-child(3) { color: #6B5A2E; }

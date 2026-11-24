@@ -12,18 +12,16 @@ themeConfig:
   footerNav:
     sections:
       - { label: Motivation, start: 2, end: 7 }
-      - { label: The emulator, start: 8, end: 12 }
-      - { label: Coupling, start: 13, end: 18 }
-      - { label: Coupled climate, start: 19, end: 24 }
-      - { label: Next, start: 25, end: 26 }
+      - { label: The emulator, start: 8, end: 10 }
+      - { label: Coupling, start: 11, end: 17 }
+      - { label: Coupled climate, start: 18, end: 23 }
+      - { label: Next, start: 24, end: 25 }
     hideOnCover: true
 ---
 
 # A neural-network atmosphere in a coupled climate model
 
 ## CAMulator with the CESM ocean and sea ice
-
-<img src="/camulator/globe.png" class="cm-cover-globe" alt="Globe rendered from a CAMulator simulation" />
 
 <!--
 Thank you for having me. This talk is about one project in my group: replacing the atmosphere of NCAR's climate model with a neural network and running it together with the model's physical ocean and sea ice. The question running through the talk is whether a network trained on one simulation can stand in for the atmosphere when a real ocean responds to it. I will show where the answer is yes, where it is not yet, and what we are changing as a result.
@@ -185,55 +183,6 @@ So where does machine-learning climate emulation stand? Our emulator and others 
 
 ---
 
-# The ocean is where climate variability lives
-
-<div class="cm-cols">
-<div>
-
-<div class="cm-couple cm-couple-big">
-  <div class="box">Trade winds weaken</div>
-  <div class="arrows"><span>↓</span></div>
-  <div class="box">Warm water spreads east across the Pacific</div>
-  <div class="arrows"><span>↓</span></div>
-  <div class="box">Rainfall and heating move east with it</div>
-  <div class="arrows"><span>↺ winds weaken further: El Niño grows</span></div>
-</div>
-
-</div>
-<div>
-
-<div class="cm-right">
-
-- The ocean stores most of the climate system's heat and changes slowly.
-- El Niño, the largest year-to-year swing in climate, exists only because winds and ocean push on each other.
-- It shifts rainfall and temperature around the world every few years.
-- An atmosphere model that runs only over a prescribed ocean never has to get this loop right.
-
-</div>
-
-</div>
-</div>
-
-<!--
-The ocean matters for two reasons. It holds most of the heat in the climate system and changes slowly, so it is the system's memory. And the largest year-to-year swing in climate, El Niño, is a conversation between the atmosphere and the ocean. When the trade winds over the Pacific weaken, warm water spreads east, rainfall and heating follow it, and the winds weaken further. Neither the atmosphere nor the ocean produces El Niño alone. So coupling is a real test of an atmosphere model, not a formality.
--->
-
----
-
-# One model, many possible histories
-
-<img src="/coupling/le_nino34_three.png" class="cm-fig-wide" alt="Tropical Pacific SST anomaly from 1981 to 2014 in three CESM2 runs that differ only in their initial state" />
-
-Three CESM2 runs with identical physics and forcing, started from slightly different states, produce different El Niño histories.
-
-<div class="cm-src">Red: El Niño (warm); blue: La Niña (cold). Tropical Pacific (Niño-3.4) SST anomaly, 3-month mean. The CESM2 Large Ensemble has 50 such runs over 1981–2014.</div>
-
-<!--
-One more idea is needed to read the results. Weather is chaotic, so the same climate model started from two almost identical states produces different histories. These are three runs of CESM2 with the same physics and the same greenhouse gases. Their El Niño events come in different years. The CESM2 Large Ensemble has fifty such runs. Their spread tells us how much any statistic varies by chance, and that is the yardstick for the emulator: we ask whether it falls inside the range of the physical model, not whether it matches any one history.
--->
-
----
-
 # CAMulator: a learned six-hour step
 
 <div class="cm-cols">
@@ -300,6 +249,41 @@ Can a network trained on one simulation stand in for the atmosphere when a real 
 
 <!--
 That brings us to the main question. In training, the ocean was a fixed record. In the coupled system, the ocean reacts to whatever the emulator does, and the emulator then sees the ocean it helped create. The next part is how the two codes talk, what physics sits between them, and what went wrong the first time.
+-->
+
+---
+
+# The ocean is where climate variability lives
+
+<div class="cm-cols">
+<div>
+
+<div class="cm-couple cm-couple-big">
+  <div class="box">Trade winds weaken</div>
+  <div class="arrows"><span>↓</span></div>
+  <div class="box">Warm water spreads east across the Pacific</div>
+  <div class="arrows"><span>↓</span></div>
+  <div class="box">Rainfall and heating move east with it</div>
+  <div class="arrows"><span>↺ winds weaken further: El Niño grows</span></div>
+</div>
+
+</div>
+<div>
+
+<div class="cm-right">
+
+- The ocean stores most of the climate system's heat and changes slowly.
+- El Niño, the largest year-to-year swing in climate, exists only because winds and ocean push on each other.
+- It shifts rainfall and temperature around the world every few years.
+- An atmosphere model that runs only over a prescribed ocean never has to get this loop right.
+
+</div>
+
+</div>
+</div>
+
+<!--
+The ocean matters for two reasons. It holds most of the heat in the climate system and changes slowly, so it is the system's memory. And the largest year-to-year swing in climate, El Niño, is a conversation between the atmosphere and the ocean. When the trade winds over the Pacific weaken, warm water spreads east, rainfall and heating follow it, and the winds weaken further. Neither the atmosphere nor the ocean produces El Niño alone. So coupling is a real test of an atmosphere model, not a formality.
 -->
 
 ---
@@ -398,6 +382,24 @@ This is the main physical point of the coupling. The neural network predicts sur
 
 ---
 
+# The first coupled runs failed at the interface
+
+| Error in the exchange code | Energy error at the ocean surface |
+|---|---:|
+| Air temperature passed from the wrong level, 0.6 K too cold | −6 W m⁻² |
+| Ocean reflectivity fixed instead of varying with the sun angle | about −3 W m⁻² |
+| Winds interpolated twice through a coarser grid, 2.2 % too weak | −1.3 W m⁻² |
+
+Fixing the first error moved the ocean from 0.71 K too cold to 0.14 K too warm, and September Arctic sea ice from 8.8 to 6.5 million km².
+
+<div class="cm-src">For scale, the present energy imbalance of the climate system is about 1 W m⁻². Diagnosis: Yuanpu Li and Will Chapman, with a Python copy of the coupler's flux code checked against the coupler to 1 %.</div>
+
+<!--
+The first coupled runs were too cold everywhere, and the natural suspect was the neural network. It was not. Each of these errors sat in the code that passes fields between Python and Fortran: a temperature taken from the wrong level, a constant ocean reflectivity, and winds weakened by interpolating them twice. Each is comparable to or larger than the energy imbalance behind present-day warming. We found them by rebuilding the coupler's flux calculation in Python and checking it against the coupler's own output. Coupling an emulator is an interface problem as much as a learning problem.
+-->
+
+---
+
 # Stable coupled runs for decades
 
 <div class="cm-cols">
@@ -422,25 +424,7 @@ This is the main physical point of the coupling. The neural network predicts sur
 </div>
 
 <!--
-The first result is that it runs. The coupled system has gone from 1981 to 2040 without blowing up, which was not guaranteed: an emulator trained over a prescribed ocean has never seen its own errors fed back through an ocean. The movie shows one year of the coupled run, with sea-surface temperature anomalies, sea ice in white and rain in cyan. El Niño events develop and decay, storms cross the oceans, and the ice edge moves with the seasons.
--->
-
----
-
-# The first coupled runs failed at the interface
-
-| Error in the exchange code | Energy error at the ocean surface |
-|---|---:|
-| Air temperature passed from the wrong level, 0.6 K too cold | −6 W m⁻² |
-| Ocean reflectivity fixed instead of varying with the sun angle | about −3 W m⁻² |
-| Winds interpolated twice through a coarser grid, 2.2 % too weak | −1.3 W m⁻² |
-
-Fixing the first error moved the ocean from 0.71 K too cold to 0.14 K too warm, and September Arctic sea ice from 8.8 to 6.5 million km².
-
-<div class="cm-src">For scale, the present energy imbalance of the climate system is about 1 W m⁻². Diagnosis: Yuanpu Li and Will Chapman, with a Python copy of the coupler's flux code checked against the coupler to 1 %.</div>
-
-<!--
-The first coupled runs were too cold everywhere, and the natural suspect was the neural network. It was not. Each of these errors sat in the code that passes fields between Python and Fortran: a temperature taken from the wrong level, a constant ocean reflectivity, and winds weakened by interpolating them twice. Each is comparable to or larger than the energy imbalance behind present-day warming. We found them by rebuilding the coupler's flux calculation in Python and checking it against the coupler's own output. Coupling an emulator is an interface problem as much as a learning problem.
+With the interface fixed, the coupled system runs. It has gone from 1981 to 2040 without blowing up, which was not guaranteed: an emulator trained over a prescribed ocean has never seen its own errors fed back through an ocean. The movie shows one year of the coupled run, with sea-surface temperature anomalies, sea ice in white and rain in cyan. El Niño events develop and decay, storms cross the oceans, and the ice edge moves with the seasons.
 -->
 
 ---
@@ -530,13 +514,13 @@ Three coupled runs differ only in their forcing, meaning greenhouse gases and th
 
 </div>
 
-<div class="cm-src">Standard deviation of monthly Niño-3.4 SST anomalies, 1981–2014.</div>
+<div class="cm-src">Standard deviation of monthly Niño-3.4 SST anomalies, 1981–2014. Grey: 50 CESM2 runs that differ only in their initial state.</div>
 
 </div>
 </div>
 
 <!--
-The main failure is El Niño. In the coupled emulator the tropical Pacific varies about three quarters as much as in the physical model, 0.97 kelvin, below every one of the fifty Large Ensemble runs. A fixed monthly correction added to the wind stress the ocean receives brings it to 1.20 kelvin, inside the range. That tells us the problem is in the winds over the tropical Pacific. It does not fix the emulator, because the correction is the same every year whatever the atmosphere does.
+The main failure is El Niño. The grey histogram is fifty CESM2 runs that differ only in tiny changes to their starting state, so their spread is the natural chance variation of El Niño. In the coupled emulator the tropical Pacific varies about three quarters as much as in the physical model, 0.97 kelvin, below every one of the fifty Large Ensemble runs. A fixed monthly correction added to the wind stress the ocean receives brings it to 1.20 kelvin, inside the range. That tells us the problem is in the winds over the tropical Pacific. It does not fix the emulator, because the correction is the same every year whatever the atmosphere does.
 -->
 
 ---
@@ -647,4 +631,18 @@ Pattern correlation with the physical model: 0.95 for tropical rainfall and 0.82
 
 <!--
 With the ocean prescribed, we can ask whether the emulator responds to El Niño correctly. During warm Pacific winters tropical rainfall shifts east, and a chain of high and low pressure arches over the North Pacific and North America. The emulator reproduces the rainfall shift with a pattern correlation of 0.95 against the physical model and the pressure pattern with 0.82. So the emulator responds to the ocean in the right places. Whether it responds with the right strength is a question only a coupled run can answer.
+-->
+
+---
+
+# Backup: one model, many possible histories
+
+<img src="/coupling/le_nino34_three.png" class="cm-fig-wide" alt="Tropical Pacific SST anomaly from 1981 to 2014 in three CESM2 runs that differ only in their initial state" />
+
+Three CESM2 runs with identical physics and forcing, started from slightly different states, produce different El Niño histories.
+
+<div class="cm-src">Red: El Niño (warm); blue: La Niña (cold). Tropical Pacific (Niño-3.4) SST anomaly, 3-month mean. The CESM2 Large Ensemble has 50 such runs over 1981–2014.</div>
+
+<!--
+One more idea is needed to read the results. Weather is chaotic, so the same climate model started from two almost identical states produces different histories. These are three runs of CESM2 with the same physics and the same greenhouse gases. Their El Niño events come in different years. The CESM2 Large Ensemble has fifty such runs. Their spread tells us how much any statistic varies by chance, and that is the yardstick for the emulator: we ask whether it falls inside the range of the physical model, not whether it matches any one history.
 -->

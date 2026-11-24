@@ -1,6 +1,6 @@
 ---
 theme: cu-boulder
-title: "A neural-network atmosphere in a coupled climate model"
+title: "An ML atmosphere in a coupled climate model"
 coverAuthor: "Will Chapman"
 coverDate: "AI-Geo Seminar, CU Boulder · Fall 2026"
 mdc: true
@@ -19,9 +19,9 @@ themeConfig:
     hideOnCover: true
 ---
 
-# A neural-network atmosphere in a coupled climate model
+# An ML atmosphere in a coupled climate model
 
-## CAMulator with the CESM ocean and sea ice
+## 'CAMulator' coupled to the CESM ocean and sea ice
 
 <!--
 Thank you for having me. This talk is about one project in my group: replacing the atmosphere of NCAR's climate model with a neural network and running it together with the model's physical ocean and sea ice. The question running through the talk is whether a network trained on one simulation can stand in for the atmosphere when a real ocean responds to it. I will show where the answer is yes, where it is not yet, and what we are changing as a result.
@@ -29,19 +29,17 @@ Thank you for having me. This talk is about one project in my group: replacing t
 
 ---
 
-# Chapman Research Group, ATOC
+# Chapman Research Group, Atmospheric and Oceanic Sciences
 
 <div class="cm-team">
   <div><img src="/camulator/team_li.jpg" alt="Yuanpu Li" /><b>Yuanpu Li</b><span>Postdoctoral scholar</span><em>Coupling to ocean and sea ice</em></div>
-  <div><img src="/camulator/team_heslin.png" alt="Sean Heslin" /><b>Sean Heslin</b><span>Graduate student</span><em>Atmospheric rivers in emulators</em></div>
-  <div><img src="/camulator/team_becker.jpg" alt="Charlie Becker" /><b>Charlie Becker</b><span>Graduate student; NCAR ML scientist</span><em>Training losses</em></div>
-  <div><img src="/camulator/team_pape.png" alt="Aiden Pape" /><b>Aiden Pape</b><span>Graduate student</span></div>
-  <div><img src="/camulator/team_melvin.png" alt="Ona Melvin" /><b>Ona Melvin</b><span>Graduate student</span></div>
-  <div><img src="/camulator/team_gosnell.jpg" alt="Eric Gosnell" /><b>Eric Gosnell</b><span>CS master's student</span></div>
-  <div><img src="/camulator/team_voeller.jpg" alt="Tate Voeller" /><b>Tate Voeller</b><span>Undergraduate student</span></div>
+  <div><img src="/camulator/team_heslin.png" alt="Sean Heslin" /><b>Sean Heslin</b><span>Graduate student</span><em>Atmospheric river representation and genesis in emulators</em></div>
+  <div><img src="/camulator/team_becker.jpg" alt="Charlie Becker" /><b>Charlie Becker</b><span>Graduate student; NCAR ML scientist</span><em>Training losses; stochastics; high-frequency information </em></div>
+  <div><img src="/camulator/team_pape.png" alt="Aiden Pape" /><b>Aiden Pape</b><span>Graduate student</span><em>structural error discovery in differentiable models </em></div>
+  <div><img src="/camulator/team_melvin.png" alt="Ona Melvin" /><b>Ona Melvin</b><span>Graduate student</span><em>Kona Low <-> Atmospheric River connection </em></div>
+  <div><img src="/camulator/team_gosnell.jpg" alt="Eric Gosnell" /><b>Eric Gosnell</b><span>CS master's student</span><em>Sattelite Snow Retrieval </em></div>
+  <div><img src="/camulator/team_voeller.jpg" alt="Tate Voeller" /><b>Tate Voeller</b><span>Undergraduate student</span><em>Sea-ice Representation in Coupled Emulation </em></div>
 </div>
-
-<div class="cm-src">The emulator is built on CREDIT, the NCAR MILES framework for machine-learning Earth system models.</div>
 
 <!--
 The coupled system was built by Yuanpu Li, a postdoc in the group, and most of the coupled results today are his runs or come from diagnosing them. The emulator is trained in CREDIT, the machine-learning framework of the NCAR MILES group, and the ocean and sea-ice models are the standard CESM components. The other students work on extremes, training losses and the cost of the models.
@@ -49,55 +47,9 @@ The coupled system was built by Yuanpu Li, a postdoc in the group, and most of t
 
 ---
 
-# What a coupled climate model is
-
-<div class="cm-cols">
-<div>
-
-<img src="/camulator/cesm_components.png" class="cm-fig-col" alt="Components of the Community Earth System Model connected through a coupler" />
-
-<div class="cm-src">Components of CESM2, connected through the coupler.</div>
-
-</div>
-<div>
-
-<div class="cm-right">
-
-- The globe is divided into boxes about 100 km wide, stacked in layers.
-- Separate programs step the atmosphere, ocean, land and sea ice forward; a coupler passes heat, water and momentum between them.
-- One simulated year of CESM2 costs 3,750 core-hours; the atmosphere is the most expensive part.
-- With CAMulator as the atmosphere, the coupled model runs 55–60 simulated years per day, about 10× faster than CESM2.
-
-</div>
-
-<div class="cm-src">CESM2 on NCAR's Derecho supercomputer, nominal 1° grid. Coupled CAMulator: 2 CPU nodes and 1 GPU.</div>
-
-</div>
-</div>
-
-<!--
-A climate model divides the globe into boxes, about a hundred kilometres across here, stacked in layers from the ocean floor to the upper atmosphere. Separate programs solve the physics of the atmosphere, the ocean, the land and the sea ice, each stepping forward in time. A component called the coupler passes heat, water and momentum between them. One simulated year of NCAR's model, CESM2, costs 3,750 core-hours, and climate questions need hundreds or thousands of simulated years. The atmosphere is the most expensive component, so we replace it with a neural network. With the emulator as the atmosphere, the coupled model runs 55 to 60 simulated years per day on two CPU nodes and one GPU, about ten times faster than CESM2. The rest of the talk is about whether that faster model gives the right climate.
--->
-
----
-
-# Cost and energy of a coupled ensemble
-
-<div class="cm-lead">Per simulated year: CESM2 uses 3,750 core-hours; coupled CAMulator uses 122 core-hours and 0.4 GPU-hours, about 30× fewer core-hours.</div>
-
-<CarbonCalc />
-
-<div class="cm-src">Defaults: Derecho CPU node (2 × AMD EPYC 7763) ≈ 6 W per core under load (estimate); H100 GPU 700 W; NWSC data-centre overhead 1.13 (CISL annual report FY2025); grid 0.47 kg CO₂e kWh⁻¹ (EPA eGRID 2023, RMPA subregion).</div>
-
-<!--
-Here is what the speed buys. Coupled to the CESM ocean and sea-ice models, the emulator runs 55 to 60 simulated years per day without any optimisation, about ten times faster than CESM2, and it uses about thirty times fewer core-hours. Most of the remaining time is spent in the ocean and sea ice, so the atmosphere is no longer the expensive part. The panel converts core-hours into energy and carbon for an ensemble the size of the CESM2 Large Ensemble. The defaults are Derecho's: about 6 watts per CPU core under load, the measured data-centre overhead of 1.13 at the Wyoming centre, and the regional grid's 0.47 kilograms of CO₂ per kilowatt-hour. Each is a slider, because each is an assumption.
--->
-
----
-
 # ML weather models now match physics models
 
-<div class="cm-cols">
+<div class="cm-cols cm-wx">
 <div>
 
 <img src="/coupling/wb2_z500.png" class="cm-fig-col" alt="500-hPa height error against lead time for IFS HRES, the IFS ensemble mean and four machine-learning weather models, 2020" />
@@ -109,7 +61,8 @@ Here is what the speed buys. Coupled to the CESM ocean and sea-ice models, the e
 
 - At day 5, GraphCast's 500-hPa height error is 28 m and GenCast's ensemble mean 27 m, against 31 m for ECMWF's high-resolution forecast.
 - ECMWF has run a machine-learning model (AIFS) operationally since 2025.
-- A 10-day global forecast takes about a minute on one accelerator; these models will be part of forecasting.
+- A 10-day global forecast takes about a minute on one gpu
+- AI models will be part of weather forecasting in some way, shape, or form
 
 </div>
 
@@ -124,7 +77,67 @@ Weather is where machine learning has already arrived. This is the WeatherBench 
 
 ---
 
-# What a climate model needs, and when
+# <span class="cm-tswap"><b v-click.hide="1">How a coupled climate model works</b><b v-click="1">Swap the atmosphere for a neural network</b></span>
+
+<div class="cm-cols">
+<div>
+
+<div class="cm-swap">
+<img src="/camulator/cesm_components.png" alt="Components of the Community Earth System Model connected through a coupler" />
+<div class="erase" v-click="1"></div>
+<div class="camu" v-click="1"><b>CAMulator</b><span>neural network, 1 GPU</span></div>
+</div>
+
+<div class="cm-src">Community Earth System Model, version 3 (CESM3).</div>
+
+</div>
+<div>
+
+<div class="cm-right">
+
+<div class="cm-stack">
+<div v-click.hide="1">
+
+- **Represent Earth on a grid.** Physical equations evolve the atmosphere, ocean, land and sea ice through time, at roughly 100 km resolution here.
+- **Connect the components.** They exchange heat, water and momentum: winds drive ocean currents, while ocean temperatures affect the atmosphere.
+
+</div>
+<div v-click="1">
+
+- **Learn the atmosphere.** A neural network trained on CESM output replaces the atmosphere's equations and steps it forward six hours at a time on one GPU.
+- **Keep the same connections.** It still exchanges heat, water and momentum with the physical ocean, land and sea ice through the coupler.
+
+</div>
+</div>
+
+- **Let climate emerge.** Repeated interactions produce weather, variability and the response to changing greenhouse gases.
+
+</div>
+
+</div>
+</div>
+
+---
+
+# Cost and energy of a coupled ensemble
+
+<div class="cm-cost">
+
+<div class="cm-lead">Per simulated year: CESM2 uses 3,750 core-hours; coupled CAMulator uses 122 core-hours and 0.4 GPU-hours, about 30× fewer core-hours.</div>
+
+<CarbonCalc />
+
+<div class="cm-src">Defaults: Derecho CPU node (2 × AMD EPYC 7763) ≈ 6 W per core under load (estimate); H100 GPU 700 W; NWSC data-centre overhead 1.13 (CISL annual report FY2025); grid 0.47 kg CO₂e kWh⁻¹ (EPA eGRID 2023, RMPA subregion).</div>
+
+</div>
+
+<!--
+Here is what the speed buys. Coupled to the CESM ocean and sea-ice models, the emulator runs 55 to 60 simulated years per day without any optimisation, about ten times faster than CESM2, and it uses about thirty times fewer core-hours. Most of the remaining time is spent in the ocean and sea ice, so the atmosphere is no longer the expensive part. The panel converts core-hours into energy and carbon for an ensemble the size of the CESM2 Large Ensemble. The defaults are Derecho's: about 6 watts per CPU core under load, the measured data-centre overhead of 1.13 at the Wyoming centre, and the regional grid's 0.47 kilograms of CO₂ per kilowatt-hour. Each is a slider, because each is an assumption.
+-->
+
+---
+
+# What a climate model is and needs to do
 
 <div class="cm-cap">
   <div class="card"><div class="yr">1960s</div><b>Warm by the right amount when CO₂ rises</b><span>climate sensitivity, set mostly by clouds</span><div class="chip part">ML: warms with CO₂, reason not yet shown</div></div>
@@ -182,27 +195,16 @@ So where does machine-learning climate emulation stand? Our emulator and others 
 
 # CAMulator: a learned six-hour step
 
-<div class="cm-cols">
-<div>
+<img src="/camulator/rollout_diagram.png" class="cm-roll" alt="The same network F applied repeatedly: x at t to x at t plus one to x at t plus two" />
 
-<img src="/camulator/rollout_diagram.png" class="cm-fig-col" style="margin-top: 4.2rem" alt="The same network F applied repeatedly: x at t to x at t plus one to x at t plus two" />
-
-</div>
-<div>
-
-<div class="cm-right">
-
-- A neural network maps the global atmosphere now to the atmosphere six hours later.
-- Feeding each prediction back in gives runs of any length.
-- It was trained on one CESM2 simulation, 1980 to 2012: about 48,000 six-hour samples.
-- Ocean temperature, sea ice, sunlight and CO₂ are inputs; in training they come from that simulation.
-
+<div class="cm-stats">
+  <div><span class="big">6 h</span><b>per step</b><em>the whole atmosphere: winds, temperature, moisture on 32 levels, 192 × 288 grid</em></div>
+  <div><span class="big">146,000</span><b>steps per century</b><em>each prediction is fed back in as the next input</em></div>
+  <div><span class="big">48,000</span><b>training samples</b><em>six-hourly output of one CESM2 run, 1980–2012</em></div>
+  <div><span class="big">0.3 s</span><b>per step on one GPU</b><em>874 M parameters</em></div>
 </div>
 
-<div class="cm-src">874 M parameters; 192 × 288 grid, 32 levels; 0.3 s per step on one GPU.</div>
-
-</div>
-</div>
+<div class="cm-given"><b>Given, not predicted:</b> ocean temperature, sea ice, sunlight and CO₂ enter as inputs. In training they come from the CESM2 run; coupled, the ocean and sea-ice models supply them.</div>
 
 <!--
 CAMulator takes the state of the atmosphere, winds, temperature and moisture on thirty-two levels plus surface pressure, and predicts the state six hours later. The prediction becomes the next input, and the model is applied again, so a century is about 146,000 steps. It was trained on six-hourly output of one CESM2 run, about 48,000 samples from a single history. The ocean temperature, sea ice, sunlight and carbon dioxide are inputs. That design is what makes coupling possible: if the ocean is an input, a real ocean model can supply it.
@@ -212,14 +214,19 @@ CAMulator takes the state of the atmosphere, winds, temperature and moisture on 
 
 # Training for stability over long runs
 
-<img src="/camulator/three_step_loss.png" class="cm-fig-train-lg" alt="Three-step rollout: the network applied three times, with a squared error against CESM at each step" />
-
-<img src="/camulator/conservation_blocks.png" class="cm-fig-train-lg cm-fig-train-lg-b" alt="Network output passed through post-blocks that enforce tracer positivity, dry-air mass, water and energy conservation" />
-
-<div class="cm-src">Top: the loss sums the squared error over three consecutive six-hour steps. Bottom: final layers rescale the output so that global dry-air mass, water and energy are conserved; they are trained with the network.</div>
+<div class="cm-trswap">
+<div v-click.hide="1">
+<img src="/camulator/three_step_loss.png" alt="Three-step rollout: the network applied three times, with a squared error against CESM at each step" />
+<div class="cm-src">The loss sums the squared error over three consecutive six-hour steps, with gradients through all three.</div>
+</div>
+<div v-click="1">
+<img src="/camulator/conservation_blocks.png" alt="Network output passed through post-blocks that enforce tracer positivity, dry-air mass, water and energy conservation" />
+<div class="cm-src">Final layers rescale the output so that global dry-air mass, water and energy are conserved; they are trained with the network.</div>
+</div>
+</div>
 
 <!--
-Two choices in training matter for climate. First, the loss is not computed on one step. The network makes three six-hour steps from its own output, and the error at each step is summed, so training sees the errors the network feeds itself. Second, the last layers enforce physics. Small blocks rescale the global dry-air mass, the water budget and the energy budget so that they balance, and the network is trained through them. Without these constraints, runs of more than a few years drift and eventually fail.
+Two choices in training matter for climate. First, the loss is not computed on one step. The network makes three six-hour steps from its own output, and the error at each step is summed, so training sees the errors the network feeds itself. [click] Second, the last layers enforce physics. Small blocks rescale the global dry-air mass, the water budget and the energy budget so that they balance, and the network is trained through them. Without these constraints, runs of more than a few years drift and eventually fail.
 -->
 
 ---
@@ -250,20 +257,32 @@ That brings us to the main question. In training, the ocean was a fixed record. 
 
 ---
 
-# The ocean is where climate variability lives
+# The Ocean and Sea-ice: slow manifold variability
 
-<div class="cm-cols">
+<div class="cm-cols cm-loops-cols">
+<div class="cm-loops">
 <div>
-
+<div class="hd">Ocean: El Niño</div>
 <div class="cm-couple cm-couple-big">
   <div class="box">Trade winds weaken</div>
   <div class="arrows"><span>↓</span></div>
   <div class="box">Warm water spreads east across the Pacific</div>
   <div class="arrows"><span>↓</span></div>
   <div class="box">Rainfall and heating move east with it</div>
-  <div class="arrows"><span>↺ winds weaken further: El Niño grows</span></div>
+  <div class="arrows"><span>↺ winds weaken further</span></div>
 </div>
-
+</div>
+<div>
+<div class="hd ice">Sea ice: ice–albedo</div>
+<div class="cm-couple cm-couple-big cm-ice">
+  <div class="box">The Arctic warms</div>
+  <div class="arrows"><span>↓</span></div>
+  <div class="box">Sea ice melts, exposing dark ocean</div>
+  <div class="arrows"><span>↓</span></div>
+  <div class="box">The ocean absorbs more sunlight</div>
+  <div class="arrows"><span>↺ more warming, more melt</span></div>
+</div>
+</div>
 </div>
 <div>
 
@@ -271,16 +290,18 @@ That brings us to the main question. In training, the ocean was a fixed record. 
 
 - The ocean stores most of the climate system's heat and changes slowly.
 - El Niño, the largest year-to-year swing in climate, exists only because winds and ocean push on each other.
-- It shifts rainfall and temperature around the world every few years.
-- Over a prescribed ocean, an atmosphere model never has to get this loop right; coupled, it must.
+- Sea ice reflects sunlight and insulates the ocean from cold winter air. Losing it amplifies warming, and the Arctic has warmed about four times faster than the globe since 1979.
+- Over a prescribed ocean and sea ice, an atmosphere model never has to get these loops right; coupled, it must.
 
 </div>
+
+<div class="cm-src">Arctic amplification: Rantanen et al. (2022).</div>
 
 </div>
 </div>
 
 <!--
-The ocean matters for two reasons. It holds most of the heat in the climate system and changes slowly, so it is the system's memory. And the largest year-to-year swing in climate, El Niño, is a conversation between the atmosphere and the ocean. When the trade winds over the Pacific weaken, warm water spreads east, rainfall and heating follow it, and the winds weaken further. Neither the atmosphere nor the ocean produces El Niño alone. So coupling is a real test of an atmosphere model, not a formality.
+The ocean and sea ice matter for the same reason: they are slow, and they talk back. The ocean holds most of the heat in the climate system, so it is the system's memory. And the largest year-to-year swing in climate, El Niño, is a conversation between the atmosphere and the ocean. When the trade winds over the Pacific weaken, warm water spreads east, rainfall and heating follow it, and the winds weaken further. Sea ice has its own loop. Ice is bright and reflects most of the sunlight that reaches it; open ocean is dark and absorbs most of it. So when the Arctic warms and ice melts, the ocean absorbs more sunlight and warms further, which is a large part of why the Arctic has warmed about four times faster than the globe. Ice also acts as a lid, keeping the ocean's heat from the cold winter air. For both loops, the atmosphere has to hand the right winds, heat and sunlight to the surface. With a prescribed ocean and ice, the atmosphere model never has to get these loops right. Coupled, it does, so coupling is a real test of an atmosphere model, not a formality.
 -->
 
 ---
@@ -344,37 +365,31 @@ The two halves never share memory. CESM has a component called the data atmosphe
 
 ---
 
-# The coupler computes the surface fluxes
+# The ocean feels the emulator's lowest model level, not its fluxes
 
-<div class="cm-cols">
-<div>
-
-$$
-\tau = \rho \, C_D \, |V| \, (u_{\text{air}} - u_{\text{ocean}})
-$$
-
-$$
-H = \rho \, c_p \, C_H \, |V| \, (T_{\text{sea}} - \theta_{\text{air}})
-$$
-
-<div class="cm-src">The coupler's formulas for wind stress τ and heat flux H. From the emulator: air density ρ, wind speed |V|, wind u_air, air temperature θ_air. From the ocean: surface current and temperature.</div>
-
-</div>
-<div>
-
-<div class="cm-right">
-
-- The emulator also predicts its own surface fluxes, but over the ocean the coupler does not use them.
-- The coupler recomputes stress, heat and evaporation from the emulator's air near the surface.
-- The emulator's near-surface air, not its flux outputs, drives the ocean.
-
+<div class="cm-flow">
+  <div class="cam">CAMulator<small>one six-hour step</small></div>
+  <div class="lane la">
+    <div class="tag">Its own flux outputs<small>heat, stress, evaporation</small></div>
+    <div class="ar"></div>
+    <div class="end">
+      <div class="unused" v-click="1">✕ not used over the ocean</div>
+    </div>
+    <div class="dim" v-click="1"></div>
+  </div>
+  <div class="lane lb">
+    <div class="tag">Lowest-level air, ~60 m<small>temperature, humidity, wind</small></div>
+    <div class="ar"></div>
+    <div class="cpl">Coupler<small>bulk formulas</small></div>
+    <div class="ar both"><span class="up">SST, currents</span><span class="dn">stress, heat, evaporation</span></div>
+    <div class="ocn">Ocean (POP2)<small>surface temperature, currents</small></div>
+  </div>
 </div>
 
-</div>
-</div>
+<div class="cm-given"><b>Stress grows roughly as wind squared.</b> A 10% error in near-surface wind becomes about a 20% error in the stress that drives the ocean.</div>
 
 <!--
-This is the main physical point of the coupling. The neural network predicts surface heat fluxes and wind stress, because the physical atmosphere had them in its output and the network was trained on everything. In the coupled system those predictions are never used over the ocean. The coupler takes the emulator's air temperature, humidity and wind at the lowest level, about sixty metres up, combines them with the ocean's surface temperature and currents, and computes the fluxes itself with these formulas. An emulator can have good flux outputs and still drive the ocean wrongly, if the air near the surface is wrong.
+This is the main physical point of the coupling. The neural network predicts surface heat fluxes and wind stress, because the physical atmosphere had them in its output and the network was trained on everything. [click] In the coupled system those predictions are never used over the ocean. The coupler takes the emulator's air temperature, humidity and wind at the lowest level, about sixty metres up, combines them with the ocean's surface temperature and currents, and computes the fluxes itself with bulk formulas: wind stress tau = rho C_D |V| (u_air - u_ocean), and heat flux H = rho c_p C_H |V| (T_sea - theta_air). Because the stress has the wind speed in it twice, a ten percent error in the near-surface wind becomes roughly a twenty percent error in the stress. So an emulator can have good flux outputs and still drive the ocean wrongly, if the air near the surface is wrong. Keep the winds in mind; they come back when we look at El Niño.
 -->
 
 ---
@@ -440,7 +455,7 @@ layout: section
 
 # The coupled climate
 
-Mean state and warming are close to CESM2; El Niño and the response to CO₂ are not yet.
+Mean state and warming are close to CESM2; El Niño and the response to CO₂ still need some work.
 
 <!--
 With the interface fixed, here is what the coupled system does, compared each time with the range of the fifty physical runs.
@@ -478,7 +493,7 @@ Three coupled runs differ only in their forcing, meaning greenhouse gases and th
 
 # El Niño in the coupled system is too weak
 
-<div class="cm-cols">
+<div class="cm-cols cm-fill">
 <div>
 
 <img src="/coupling/enso_hist.png" class="cm-fig-col" alt="Histogram of tropical Pacific SST variability across 50 CESM2 runs, with lines for the coupled run and the corrected run" />
@@ -507,7 +522,7 @@ The main failure is El Niño. The grey histogram is fifty CESM2 runs that differ
 
 # The emulator's trade winds are too strong
 
-<div class="cm-cols">
+<div class="cm-cols cm-fill">
 <div>
 
 <img src="/coupling/wind_stress.png" class="cm-fig-col" alt="Stress change per wind change against mean easterly wind; ensemble members on a line, coupled runs further along it" />
@@ -517,7 +532,7 @@ The main failure is El Niño. The grey histogram is fifty CESM2 runs that differ
 
 <div class="cm-right">
 
-- Mean easterly winds near the surface are 5.7 m s⁻¹ in the coupled emulator, against 4.9 m s⁻¹ in CESM.
+- Mean easterly winds near the surface are 5.7&nbsp;m&nbsp;s⁻¹ in the coupled emulator, against 4.9&nbsp;m&nbsp;s⁻¹ in CESM.
 - Stress grows with the square of the wind, so the ocean gets a larger push for each change in wind.
 - Across 30 CESM2 runs the same relation holds; the coupled runs sit on its extension.
 - The fix is the emulator's mean wind, which is a training target.
@@ -551,7 +566,7 @@ The second problem comes from training on a single history. In the training simu
 
 # Next: training targets from the physical model
 
-<div class="cm-cols">
+<div class="cm-cols cm-fill">
 <div>
 
 <div class="cm-couple cm-couple-big">

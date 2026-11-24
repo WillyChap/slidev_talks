@@ -188,7 +188,7 @@ So where does machine-learning climate emulation stand? Our emulator and others 
 <div class="cm-cols">
 <div>
 
-<img src="/camulator/rollout_diagram.png" class="cm-fig-col" alt="The same network F applied repeatedly: x at t to x at t plus one to x at t plus two" />
+<img src="/camulator/rollout_diagram.png" class="cm-fig-col" style="margin-top: 4.2rem" alt="The same network F applied repeatedly: x at t to x at t plus one to x at t plus two" />
 
 </div>
 <div>

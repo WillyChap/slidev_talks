@@ -235,22 +235,30 @@ That brings us to the main question. In training, the ocean was a fixed record. 
 
 <div class="cm-hs">
   <div class="side fortran">
-    <div class="hdr">CESM · Fortran · CPUs</div>
+    <div class="hdr">CESM (Fortran)<small>CPU nodes</small></div>
     <div class="cbox">Ocean (POP2)</div>
     <div class="cbox">Sea ice (CICE5)</div>
-    <div class="cbox">Coupler: computes surface fluxes</div>
+    <div class="cbox">Coupler: surface fluxes</div>
     <div class="cbox da">Data atmosphere (modified)</div>
-    <div class="t">≈ 1.1 s per six-hour exchange</div>
+    <div class="t">≈ 1.1 s per exchange</div>
   </div>
   <div class="mid">
-    <div class="arr r"><b>①</b> camulator_sst_in.nc<br/>+ go.flag<span>sea-surface temperature, ice fraction</span></div>
-    <div class="arr l"><b>②</b> camulator_cam_out.nc<br/>+ done.flag<span>wind, temperature, humidity, radiation, rain</span></div>
+    <div class="msg">
+      <div class="lbl"><b>①</b> <code>camulator_sst_in.nc</code> + <code>go.flag</code></div>
+      <div class="line"><div class="bar"></div><svg class="tri" viewBox="0 0 14 14"><polygon points="0,0 14,7 0,14"/></svg></div>
+      <div class="what">sea-surface temperature, sea-ice fraction</div>
+    </div>
+    <div class="msg">
+      <div class="lbl"><b>②</b> <code>camulator_cam_out.nc</code> + <code>done.flag</code></div>
+      <div class="line"><svg class="tri" viewBox="0 0 14 14"><polygon points="14,0 0,7 14,14"/></svg><div class="bar"></div></div>
+      <div class="what">wind, temperature, humidity, radiation, rain</div>
+    </div>
     <div class="every">every 6 model hours</div>
   </div>
   <div class="side python">
-    <div class="hdr">CAMulator · Python · 1 GPU</div>
+    <div class="hdr">CAMulator (Python)<small>1 GPU</small></div>
     <div class="cbox gpu">Read the ocean state</div>
-    <div class="cbox gpu">One six-hour step of the network</div>
+    <div class="cbox gpu">One six-hour network step</div>
     <div class="cbox gpu">Write the atmosphere state</div>
     <div class="t">≈ 0.3 s per step</div>
   </div>

@@ -14,9 +14,9 @@ const pue = ref(1.2)        // data-centre power usage effectiveness (assumed)
 const ci = ref(0.5)         // kg CO2e per kWh (assumed grid mix)
 
 const models = [
-  { name: 'CESM3', core: 25643, gpu: 0, cls: 'm3' },
-  { name: 'CESM2', core: 3750, gpu: 0, cls: 'm2' },
-  { name: 'CAMulator + POP2/CICE', core: 122, gpu: 0.4, cls: 'cm' },
+  { name: 'CESM3', core: 25643, gpu: 0, cls: 'cc-m3' },
+  { name: 'CESM2', core: 3750, gpu: 0, cls: 'cc-m2' },
+  { name: 'CAMulator + POP2/CICE', core: 122, gpu: 0.4, cls: 'cc-cm' },
 ]
 const simYears = computed(() => members.value * years.value)
 const rows = computed(() => models.map(m => {
@@ -25,7 +25,10 @@ const rows = computed(() => models.map(m => {
   const mwh = (coreH * wCore.value + gpuH * wGpu.value) * pue.value / 1e6
   return { ...m, coreH, mwh, t: mwh * ci.value }
 }))
-const maxT = computed(() => Math.max(...rows.value.map(r => r.t)))
+// Fixed log axis so the bars move with the sliders (normalising to the largest bar kept every ratio constant).
+const LO = -2, HI = 5   // 0.01 t to 100,000 t CO2e
+const width = (t: number) => Math.min(100, Math.max(0.6, 100 * (Math.log10(Math.max(t, 1e-6)) - LO) / (HI - LO)))
+const ticks = [0.01, 1, 100, 10000]
 const fmt = (v: number) => v >= 100 ? Math.round(v).toLocaleString() : v >= 10 ? v.toFixed(0) : v.toFixed(1)
 const fmtM = (v: number) => (v / 1e6 >= 10 ? (v / 1e6).toFixed(0) : (v / 1e6).toFixed(1)) + ' M'
 </script>
@@ -45,9 +48,11 @@ const fmtM = (v: number) => (v / 1e6 >= 10 ? (v / 1e6).toFixed(0) : (v / 1e6).to
       <div class="total">{{ simYears.toLocaleString() }} simulated years</div>
       <div v-for="r in rows" :key="r.name" class="row">
         <div class="lab">{{ r.name }}</div>
-        <div class="bar-wrap"><div class="bar" :class="r.cls" :style="{ width: Math.max(0.6, 100 * r.t / maxT) + '%' }" /></div>
+        <div class="bar-wrap"><div class="bar" :class="r.cls" :style="{ width: width(r.t) + '%' }" /></div>
         <div class="num"><b>{{ fmt(r.t) }} t CO₂e</b><br /><span>{{ fmt(r.mwh) }} MWh · {{ fmtM(r.coreH) }} core-h</span></div>
       </div>
+      <div class="axis"><span v-for="v in ticks" :key="v" :style="{ left: (100 * (Math.log10(v) - LO) / (HI - LO)) + '%' }">{{ v.toLocaleString() }}</span></div>
+      <div class="axis-lab">t CO₂e (log scale)</div>
       <div class="ratio">CESM2 ÷ CAMulator coupled: <b>{{ (rows[1].t / rows[2].t).toFixed(0) }}×</b> the energy</div>
     </div>
   </div>
@@ -64,10 +69,13 @@ const fmtM = (v: number) => (v / 1e6 >= 10 ? (v / 1e6).toFixed(0) : (v / 1e6).to
 .lab { font-weight: 600; line-height: 1.15; }
 .bar-wrap { background: var(--cu-surface); height: 1.3rem; border-radius: 2px; }
 .bar { height: 100%; border-radius: 2px; transition: width 0.2s; }
-.bar.m3 { background: var(--cu-dark-gray); }
-.bar.m2 { background: var(--cu-light-gray); }
-.bar.cm { background: var(--cu-gold); }
+.bar.cc-m3 { background: var(--cu-dark-gray); }
+.bar.cc-m2 { background: var(--cu-light-gray); }
+.bar.cc-cm { background: var(--cu-gold); }
 .num { line-height: 1.2; font-variant-numeric: tabular-nums; }
 .num span { color: var(--cu-text-muted); font-size: 0.9em; }
+.axis { position: relative; height: 1rem; margin-left: 8.1rem; margin-right: 9.6rem; font-size: 0.85em; color: var(--cu-text-muted); }
+.axis span { position: absolute; transform: translateX(-50%); }
+.axis-lab { text-align: center; font-size: 0.85em; color: var(--cu-text-muted); margin-right: 1.5rem; }
 .ratio { margin-top: 0.6rem; border-top: 1px solid var(--cu-border); padding-top: 0.4rem; }
 </style>

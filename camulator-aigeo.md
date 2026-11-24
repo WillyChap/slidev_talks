@@ -11,10 +11,10 @@ themeConfig:
   department: "Department of Atmospheric & Oceanic Sciences"
   footerNav:
     sections:
-      - { label: Motivation, start: 2, end: 3 }
-      - { label: The emulator, start: 4, end: 7 }
-      - { label: Performance, start: 8, end: 13 }
-      - { label: Open questions, start: 14, end: 21 }
+      - { label: Motivation, start: 2, end: 4 }
+      - { label: The emulator, start: 5, end: 8 }
+      - { label: Performance, start: 9, end: 14 }
+      - { label: Limits and fixes, start: 15, end: 22 }
     hideOnCover: true
 ---
 
@@ -64,29 +64,44 @@ The group sits in Atmospheric and Oceanic Sciences and works closely with the ma
 
 <div class="cm-right">
 
-The Community Earth System Model (CESM) steps the atmosphere, ocean, land, sea ice and rivers forward together, with an atmospheric time step of 30 minutes.
+The Community Earth System Model (CESM) steps atmosphere, ocean, land, ice and rivers forward together, every 30 simulated minutes.
 
-- One simulated year of CESM2 costs 3,750 core-hours on Derecho; CESM3 costs 25,643.
-- The CESM2 Large Ensemble has 100 members from 1850 to 2100, about 25,000 simulated years.
-- At CESM2's cost that ensemble needs about 94 million core-hours.
+- One simulated year: **3,750 core-hours** (CESM2), 25,643 (CESM3).
+- A 100-member, 250-year ensemble: **94 million core-hours**.
+- The atmosphere is the most expensive part, so that is what we emulate.
 
 </div>
 
-<div class="cm-src">Costs: Derecho, fully coupled, nominal 1° grid. Ensemble: Rodgers et al. (2021).</div>
+<div class="cm-src">Costs: Derecho, fully coupled, nominal 1° grid. Ensemble: CESM2 Large Ensemble, Rodgers et al. (2021).</div>
 
 </div>
 </div>
 
 <!--
-Climate projections need many long simulations: centuries of model time, repeated across ensemble members to separate the forced signal from internal variability. A coupled model such as CESM computes the atmosphere, ocean, land and ice on a global grid every half hour of model time. One simulated year of CESM2 costs 3,750 core-hours on NCAR's Derecho machine, and CESM3 costs about seven times more. The CESM2 Large Ensemble, one hundred members over 250 years, would cost around 94 million core-hours at that rate. The atmosphere is the most expensive component, so it is the component we emulate.
+Climate projections need many long simulations: centuries of model time, repeated across ensemble members to separate the forced signal from internal variability. A coupled model such as CESM computes the atmosphere, ocean, land and ice on a global grid every half hour of model time. One simulated year of CESM2 costs 3,750 core-hours on NCAR's Derecho machine, and CESM3 costs about seven times more. The CESM2 Large Ensemble, one hundred members from 1850 to 2100, about 25,000 simulated years, would cost around 94 million core-hours at that rate. The atmosphere is the most expensive component, so it is the component we emulate.
 -->
-
 
 ---
 
-# Autoregressive machine-learning models
+# The short version
 
-A learned operator replaces the numerical solver for the equations of motion. The network takes the state vector $x_t$ and returns the next state, $x_{t+1} = F_\theta(x_t)$; applying the same network again gives $x_{t+2}$, and so on.
+<div class="cm-thesis">
+
+An emulator of the CESM atmosphere gets the **bulk climate right at about 1/30th of the compute**.
+
+Its errors sit where a squared-error training loss cannot see them: **small scales**, which come out too smooth, and **slow modes**, which drift.
+
+</div>
+
+<!--
+Here is the whole talk in two sentences, so you know where we are going. First, the emulator works: it runs stably for decades, reproduces the warming trend and El Niño's effects, and costs about thirty times less compute when coupled to an ocean. Second, the interesting part is where it fails, and the failures have a common cause. Training minimises a squared error, which pays the network to blur small features it is unsure of and gives it almost no reason to get very slow, large-scale behaviour right. Most of the second half is about those two blind spots and what we are doing about them.
+-->
+
+---
+
+# The network replaces the solver, step by step
+
+The network takes the state of the atmosphere $x_t$ and returns the next state, $x_{t+1} = F_\theta(x_t)$. Feeding its own output back in gives $x_{t+2}$, and so on for as long as needed.
 
 <img src="/camulator/rollout_diagram.png" class="cm-fig-rollout" alt="The same network F applied repeatedly: x at t to x at t plus one to x at t plus two" />
 
@@ -98,15 +113,15 @@ Before CAMulator itself, the general idea. A conventional model integrates the e
 
 ---
 
-# Advantages of autoregressive emulation
+# Emulation makes long runs and gradients cheap
 
 <div class="cm-cols">
 <div>
 
-- CAMulator steps the atmosphere forward six hours at a time; one step takes about 0.3 s on one GPU.
+- One six-hour step takes about **0.3 s on one GPU**.
 - Runs of any length and large ensembles become affordable.
-- The network is differentiable end to end, so sensitivities come from one backward pass.
-- The ocean, sea ice, sunlight and CO₂ enter as inputs, so the same network runs historical and scenario climates.
+- The network is differentiable, so sensitivities come from one backward pass.
+- Ocean, sea ice, sunlight and CO₂ are inputs, so one network runs past and future climates.
 
 </div>
 <div>
@@ -125,21 +140,21 @@ The idea behind an autoregressive emulator is simple. Train a neural network to 
 
 ---
 
-# Training data and network
+# Trained on 33 years of one CESM2 simulation
 
-Training data are one coupled CESM2.1.5 simulation, 1980 to 2048, saved every six hours on a 192 × 288 grid with 32 levels. Years 1980 to 2012 train the network; 2013 and 2014 validate it.
+Training data: one coupled CESM2 simulation saved every six hours on a 192 × 288 grid with 32 levels. Years 1980–2012 train the network; 2013–2014 validate it. Its atmosphere component, **CAM6**, is the target the emulator learns.
 
 <img src="/camulator/architecture.png" class="cm-fig-wide" alt="CAMulator architecture: cross-embedding attention encoder, up-sampling decoder, conservation post-blocks" />
 
 <div class="cm-src">874 M parameters: attention encoder at four scales and a U-Net-like decoder; 136 input and 147 output maps. Earth-aware padding wraps longitude and reflects across the poles.</div>
 
 <!--
-The training data come from one coupled CESM2 simulation from 1980 to 2048, with the SSP2-4.5 scenario after 2015, saved every six hours. The network sees 136 two-dimensional maps per step: winds, temperature and moisture on 32 levels, surface pressure, and the forcing fields. It predicts 147 maps, including precipitation and radiation. The encoder uses attention at four spatial scales and the decoder mirrors it, as in a U-Net. The loss is the mean squared error summed over three consecutive six-hour steps. Small blocks at the end rescale the output so that global mass, water and energy are conserved, and they are trained with the network.
+The training data come from one coupled CESM2 simulation from 1980 to 2048, with the SSP2-4.5 scenario after 2015, saved every six hours. CAM6 is the atmosphere inside CESM2, so throughout the talk "CAM6" means the model we are emulating. The network sees 136 two-dimensional maps per step: winds, temperature and moisture on 32 levels, surface pressure, and the forcing fields. It predicts 147 maps, including precipitation and radiation. The encoder uses attention at four spatial scales and the decoder mirrors it, as in a U-Net. The loss is the mean squared error summed over three consecutive six-hour steps. Small blocks at the end rescale the output so that global mass, water and energy are conserved, and they are trained with the network.
 -->
 
 ---
 
-# Three-step rollout training with conservation
+# Multi-step training keeps long runs stable
 
 <img src="/camulator/three_step_loss.png" class="cm-fig-train" alt="Three-step rollout: the network applied three times, with a squared error against CESM at each step" />
 
@@ -153,7 +168,7 @@ Two choices in training matter for climate. First, the loss is not computed on o
 
 ---
 
-# Weather skill against CAM6 itself
+# Forecasts as skillful as CAM6 forecasting itself
 
 <div class="cm-cols">
 <div>
@@ -165,45 +180,47 @@ Two choices in training matter for climate. First, the loss is not computed on o
 
 <div class="cm-right">
 
-- 233 forecasts started from CAM6 states, 2013 to 2014.
-- The correlation of 500-hPa height with CAM6 falls to 0.6 at 8.9 days.
-- CAM6 forecasting a perturbed copy of itself falls to 0.6 at 7.4 days.
+- 233 forecasts from CAM6 states in 2013–2014, the held-out years.
+- Score: pattern correlation of the mid-level pressure map (500-hPa height) with CAM6.
+- **Orange, CAMulator:** stays above 0.6 for 8.9 days.
+- **Black, CAM6 forecasting a perturbed copy of itself:** 7.4 days.
+- Why it "wins": a squared-error loss pulls forecasts toward a smooth ensemble mean. That smoothing comes back later as muted extremes.
 
 </div>
 
-<div class="cm-src">Orange: CAMulator. Black: CESM2 subseasonal reforecasts, perturbed against unperturbed members (Richter et al. 2022).</div>
+<div class="cm-src">Black: CESM2 subseasonal reforecasts, perturbed against unperturbed members (Richter et al. 2022).</div>
 
 </div>
 </div>
 
 <!--
-First, weather. We start CAMulator from CAM6 states and score its forecasts against what CAM6 did next. The anomaly correlation of the 500-hectopascal height field drops to 0.6, a common threshold for useful skill, at 8.9 days. The black curves are CAM6 forecasting itself from slightly perturbed initial states, which removes model error entirely, and they reach 0.6 at 7.4 days. The emulator does better than the model forecasting itself because a squared-error loss trains it to predict something close to an ensemble mean, and a mean tracks any single trajectory better than another trajectory does.
+First, weather. We start CAMulator from CAM6 states and score its forecasts against what CAM6 did next. The anomaly correlation of the 500-hectopascal height field drops to 0.6, a common threshold for useful skill, at 8.9 days. The black curves are CAM6 forecasting itself from slightly perturbed initial states, which removes model error entirely, and they reach 0.6 at 7.4 days. The emulator does better than the model forecasting itself because a squared-error loss trains it to predict something close to an ensemble mean, and a mean tracks any single trajectory better than another trajectory does. Flag this: the same smoothing is the cause of the weak extremes later in the talk.
 -->
 
 
 ---
 
-# A 35-year run from one initial state
+# 35 years from one state, trend intact
 
 <img src="/camulator/free_run_35yr.png" class="cm-fig-wide" alt="Annual global means 1980 to 2014 of five quantities for CAM6 and CAMulator" />
 
-One continuous run of 51,100 six-hour steps from 1980, with the ocean prescribed. Annual means follow CAM6 year by year, including the warming trend. The lower stratosphere (b) drifts cold.
+One continuous run of 51,100 six-hour steps from 1980, ocean prescribed. **Orange** (CAMulator) follows **black** (CAM6) year by year, including the warming trend. The lower stratosphere (b) drifts cold.
 
-<div class="cm-src">Annual global means, 1980–2014: (a) 2-m temperature, (b) 52-hPa temperature, (c) 525-hPa temperature, (d) column water, (e) precipitation.</div>
+<div class="cm-src">Annual global means, 1980–2014: (a) 2-m temperature, (b) 52-hPa temperature, (c) 525-hPa temperature, (d) column water, (e) precipitation. Most of these years are in the training period; the run receives no data after its first step.</div>
 
 <!--
-For climate, the emulator has to run for decades without blowing up or drifting. This is one continuous run of 51,100 steps started from a single CAM6 state in 1980, with the observed-like ocean from the training simulation prescribed. Surface temperature, mid-tropospheric temperature, column water and precipitation follow CAM6 year by year, including the trend. One quantity is clearly wrong: the lower stratosphere cools steadily. That error is systematic rather than random, and errors of that kind turn out to be the hardest problem we work on.
+For climate, the emulator has to run for decades without blowing up or drifting. This is one continuous run of 51,100 steps started from a single CAM6 state in 1980, with the observed-like ocean from the training simulation prescribed. Surface temperature, mid-tropospheric temperature, column water and precipitation follow CAM6 year by year, including the trend. One quantity is clearly wrong: the lower stratosphere cools steadily. That error is systematic rather than random, and errors of that kind turn out to be the hardest problem we work on. If asked about overfitting: these years were in training, but the run is free, so year-by-year agreement comes from the prescribed ocean, not from memorised weather. The true out-of-sample test is the scenario slide.
 -->
 
 ---
 
-# El Niño teleconnections in winter
+# El Niño's remote effects emerge unprompted
 
 <img src="/camulator/enso_teleconnections.png" class="cm-fig-wide" alt="Composite 500 hPa height and precipitation differences for warm minus cold tropical Pacific winters, CAM6 and CAMulator" />
 
-The pattern correlation with CAM6 is 0.95 for tropical rainfall and 0.82 for the North Pacific wave train.
+**Left: CAM6. Right: CAMulator.** Top: mid-level pressure; bottom: rainfall. Pattern correlation with CAM6: **0.95** for tropical rainfall, **0.82** for the North Pacific wave train.
 
-<div class="cm-src">Ten warmest minus ten coldest tropical Pacific winters of 34. Top: 500-hPa height. Bottom: precipitation. Left: CAM6. Right: CAMulator.</div>
+<div class="cm-src">Ten warmest minus ten coldest tropical Pacific winters of 34, all within the training period.</div>
 
 <!--
 El Niño is the largest source of year-to-year variability, and its effect on weather far from the tropical Pacific is a standard test for any climate model. Both models see the same ocean, so we can compare the same winters directly. During El Niño, tropical rainfall shifts east, and a wave train of pressure anomalies arches over the North Pacific and North America. The emulator reproduces the rainfall shift with a pattern correlation of 0.95 and the wave train with 0.82. Nothing in the training asked for this response; it comes from learning the six-hour dynamics.
@@ -211,91 +228,80 @@ El Niño is the largest source of year-to-year variability, and its effect on we
 
 ---
 
-# Mean bias beside other climate emulators
+# Mean errors on par with other emulators
 
 <div class="cm-cols">
 <div>
 
-<img src="/camulator/aimip_bias.png" class="cm-fig-col" alt="Bar chart of 2-m temperature time-mean bias for machine-learning climate emulators in AIMIP phase 1" />
+<img src="/camulator/aimip_bias_camulator.png" class="cm-fig-col" alt="Bar chart of 2-m temperature time-mean bias for machine-learning climate emulators in AIMIP phase 1, with a dashed line marking CAMulator at 0.40 K" />
 
 </div>
 <div>
 
 <div class="cm-right">
 
-- AIMIP Phase 1 scores emulators trained on reanalysis over 1979–2014.
-- By the same metric, CAMulator's bias against its own training model is 0.40 K.
-- Emulating a model is easier than emulating reanalysis, so this value is a reference point, not a rank.
+- Bars: AI Model Intercomparison Project (AIMIP) emulators, trained on and scored against observation-based reanalysis, 1979–2014.
+- Dashed line: CAMulator by the same metric, against CAM6: **0.40 K**.
+- Emulating a model is easier than emulating the real atmosphere, so this is a reference point, not a rank.
 
 </div>
 
-<div class="cm-src">Area-weighted RMS of the time-mean 2-m temperature bias on a 1° grid. Henn et al. (2026), arXiv:2605.06944, Fig. 2a.</div>
-
-</div>
-</div>
-
-<!--
-The AI model intercomparison project, AIMIP, measures the time-mean surface temperature bias of several machine-learning climate emulators over 1979 to 2014. Their bars are five-member medians against the ERA5 reanalysis. Applying the same recipe to CAMulator against CAM6, the model it was trained on, gives 0.40 kelvin, and the two halves of our run give 0.39 and 0.43. Internal variability accounts for about 0.08 kelvin of that. The comparison is not like for like: a model is a cleaner target than the real atmosphere. It places our errors at the same order as the field's.
--->
-
-
----
-
-# Out of sample: SSP2-4.5, 2016–2044
-
-<div class="cm-cols">
-<div>
-
-<img src="/camulator/ssp245_out_of_sample.png" class="cm-fig-col" alt="Global 2-m temperature, precipitation and warming profiles for CAMulator and CAM6 under SSP2-4.5" />
-
-</div>
-<div>
-
-<div class="cm-right">
-
-- The emulator never saw these years.
-- It warms 0.42 K per decade against CAM6's 0.35 K, with polar amplification in the right place.
-- Global rainfall rises less than half as much as in CAM6.
-
-</div>
-
-<div class="cm-src">Dashed: runs with one forcing held fixed. Driven by the CAM6 scenario ocean and CO₂.</div>
+<div class="cm-src">Area-weighted RMS of the time-mean 2-m temperature bias on a 1° grid. Henn et al. (2026), arXiv:2605.06944, Fig. 2a; dashed line added.</div>
 
 </div>
 </div>
 
 <!--
-The real test of an emulator for climate is a future it has not seen. CAM6 has a scenario run out to 2048, and CAMulator was never trained on it. Driven by the scenario's ocean and carbon dioxide, the emulator warms at 0.42 kelvin per decade against 0.35 for CAM6, with the right pattern of stronger warming at high latitudes. The rise in global rainfall is less than half of CAM6's. The dashed runs hold one forcing fixed and show that the response to carbon dioxide alone is too strong at the surface, because carbon dioxide and ocean temperature rose together in the training data.
+The AI model intercomparison project, AIMIP, measures the time-mean surface temperature bias of several machine-learning climate emulators over 1979 to 2014. Their bars are five-member medians against the ERA5 reanalysis. Applying the same recipe to CAMulator against CAM6, the model it was trained on, gives 0.40 kelvin, the dashed line, and the two halves of our run give 0.39 and 0.43. Internal variability accounts for about 0.08 kelvin of that. The comparison is not like for like: a model is a cleaner target than the real atmosphere. It places our errors at the same order as the field's.
 -->
 
 
 ---
 
-# Cost and energy of a coupled ensemble
+# Out of sample: warms too fast, rains too little
 
-<div class="cm-lead">Coupled CAMulator: 55–60 simulated years per day on 2 Derecho nodes + 1 H100, about 10× faster than CESM2 and 30× fewer core-hours.</div>
+<div class="cm-pair cm-pair-short">
+  <img src="/camulator/ssp245_a.png" alt="Global-mean 2-m temperature 2016 to 2044 for CAM6, CAMulator and runs with one forcing held fixed" />
+  <img src="/camulator/ssp245_d.png" alt="Warming trend by latitude for CAM6, CAMulator and runs with one forcing held fixed" />
+</div>
+
+- A middle-of-the-road emissions scenario (SSP2-4.5) the emulator never saw: **0.42 K per decade** against CAM6's 0.35, with extra warming at high latitudes; global rainfall rises less than half as much.
+- Why: CO₂ and ocean temperature rose together in training. Holding the ocean fixed (yellow dashed), CO₂ alone warms the surface too much.
+
+<div class="cm-src">Left: global-mean 2-m temperature. Right: warming trend by latitude. Dashed: one forcing held fixed. Driven by the CAM6 scenario ocean and CO₂.</div>
+
+<!--
+The real test of an emulator for climate is a future it has not seen. CAM6 has a scenario run out to 2048, and CAMulator was never trained on it. Driven by the scenario's ocean and carbon dioxide, the emulator warms at 0.42 kelvin per decade against 0.35 for CAM6, with the right pattern of stronger warming at high latitudes, but too much of it. The rise in global rainfall is less than half of CAM6's. The dashed runs hold one forcing fixed and show that the response to carbon dioxide alone is too strong at the surface, because carbon dioxide and ocean temperature rose together in the training data, and the network cannot tell which one caused the warming.
+-->
+
+
+---
+
+# Coupled ensembles at 1/30th of the compute
+
+<div class="cm-lead">Coupled CAMulator: 55–60 simulated years per day on 2 Derecho nodes + 1 H100, about 10× faster than CESM2 and 30× fewer core-hours. The energy saving is smaller (about 21×) because one GPU draws as much power as roughly 140 CPU cores.</div>
 
 <CarbonCalc />
 
 <!--
-Here is the cost. Coupled to the CESM ocean and sea-ice models, the emulator runs 55 to 60 simulated years per wall-clock day without any optimisation, about ten times faster than CESM2, and it uses about thirty times fewer core-hours. Eighty percent of the remaining time is spent in the ocean and sea ice, so the atmosphere is no longer the bottleneck. The panel converts core-hours into energy and carbon for an ensemble the size of the CESM2 Large Ensemble. The energy and carbon numbers depend on assumptions about hardware power and the electricity grid, and those assumptions are the sliders, so the audience can change them.
+Here is the cost. Coupled to the CESM ocean and sea-ice models, the emulator runs 55 to 60 simulated years per wall-clock day without any optimisation, about ten times faster than CESM2, and it uses about thirty times fewer core-hours. The energy saving is smaller, about twenty-one times, because the GPU draws about 700 watts, the same as roughly 140 CPU cores at 5 watts each. Eighty percent of the remaining time is spent in the ocean and sea ice, so the atmosphere is no longer the bottleneck. The panel converts core-hours into energy and carbon for an ensemble the size of the CESM2 Large Ensemble. The energy and carbon numbers depend on assumptions about hardware power and the electricity grid, and those assumptions are the sliders, so the audience can change them.
 -->
 
 ---
 layout: section
 ---
 
-# Questions we are working on
+# Where it breaks, and what we are doing about it
 
 Coupling to a dynamical ocean · High-frequency variability and extremes · Low-frequency variability and drift · Rare events and differentiable models
 
 <!--
-The emulator reproduces the bulk of the climate. The research questions are at the edges: what happens when the emulator drives a real ocean, whether it keeps the extremes, whether slow drifts stay under control over decades, and what a differentiable model lets us do that a conventional one does not. I will take each in turn with one slide.
+The emulator reproduces the bulk of the climate. The research questions are at the edges: what happens when the emulator drives a real ocean, whether it keeps the extremes, whether slow drifts stay under control over decades, and what a differentiable model lets us do that a conventional one does not. Some of these already have fixes, which I will show. I will take each in turn.
 -->
 
 ---
 
-# Coupling CAMulator to the CESM ocean
+# Coupled El Niño needs a wind-stress fix
 
 <div class="cm-cols">
 <div>
@@ -308,14 +314,14 @@ The emulator reproduces the bulk of the climate. The research questions are at t
   <div class="box">POP2 ocean + CICE sea ice<br /><small>Derecho CPUs</small></div>
 </div>
 
-With a fixed tropical wind-stress correction, the Niño-3.4 SST standard deviation rises from 0.97 to 1.20 K (CESM2 Large Ensemble: 1.33 ± 0.14 K, 1981–2014).
+The emulator's surface winds over-react to tropical sea-surface temperature, so El Niño came out too weak. A fixed correction raises its strength from **0.97 to 1.20 K**, inside the CESM2 range (1.33 ± 0.14 K).
 
 </div>
 <div>
 
 <video src="/camulator/coupled_sst_precip_2028.mp4" poster="/camulator/coupled_poster.jpg" class="cm-video" autoplay loop muted playsinline></video>
 
-<div class="cm-src">Coupled run, 2028. Colour: SST anomaly; white: sea ice; cyan: precipitation. Yuanpu Li and Will Chapman.</div>
+<div class="cm-src">Coupled run, 2028. Colour: SST anomaly; white: sea ice; cyan: precipitation. El Niño strength: standard deviation of Niño-3.4 SST; CESM2 Large Ensemble, 1981–2014. Yuanpu Li and Will Chapman.</div>
 
 </div>
 </div>
@@ -327,7 +333,7 @@ The first open question is coupling. CAMulator replaces the CESM atmosphere and 
 
 ---
 
-# Coupled sea ice in the Arctic
+# The cold bias came from coupling, not learning
 
 <div class="cm-cols">
 <div>
@@ -339,47 +345,47 @@ The first open question is coupling. CAMulator replaces the CESM atmosphere and 
 </div>
 <div class="cm-right">
 
-- CICE grows and melts ice in response to CAMulator's surface fluxes, exchanged every six hours.
-- The first coupled runs were too cold. The cause was in the coupling: the temperature passed to the coupler was 0.6 K low, removing 6 W m⁻² of sensible heat from the ocean.
-- Fixing it moved SST (60°S–60°N) from −0.71 to +0.14 K against CESM2, and September Arctic ice from 8.8 to 6.5 million km².
+- The sea-ice model grows and melts ice from CAMulator's fluxes every 6 h.
+- First coupled runs were too cold: the coupler was handed a temperature 0.6 K too low.
+- A one-line fix: SST bias **−0.71 → +0.14 K**; September Arctic ice **8.8 → 6.5 million km²**.
 
 </div>
 </div>
 
-<div class="cm-src">Diagnosis and fix: Yuanpu Li. Scores against CESM2, 37-year runs.</div>
+<div class="cm-src">Diagnosis and fix: Yuanpu Li. Scores against CESM2, 37-year runs; SST over 60°S–60°N.</div>
 
 <!--
-Coupling also brings in sea ice. The CICE model grows and melts ice from the fluxes the emulator provides, and the movie shows the coupled Arctic over a year. The first coupled runs were too cold everywhere, and it was tempting to blame the emulator. Yuanpu found that the cause was in the plumbing: the temperature handed to the coupler was taken from the wrong level, 0.6 kelvin too cold, which removed 6 watts per square metre of sensible heat from the ocean. Fixing that one line removed the global cold bias and most of the excess September sea ice. Coupling an emulator is an interface problem as much as a learning problem.
+Coupling also brings in sea ice. The CICE model grows and melts ice from the fluxes the emulator provides, and the movie shows the coupled Arctic over a year. The first coupled runs were too cold everywhere, and it was tempting to blame the emulator. Yuanpu found that the cause was in the plumbing: the temperature handed to the coupler was taken from the wrong level, 0.6 kelvin too cold, which removed 6 watts per square metre of sensible heat from the ocean. Fixing that one line moved the SST bias between 60 south and 60 north from minus 0.71 to plus 0.14 kelvin against CESM2, and September Arctic ice from 8.8 to 6.5 million square kilometres. Coupling an emulator is an interface problem as much as a learning problem.
 -->
 
 ---
 
-# High-frequency variability and extremes
+# Too-smooth small scales mute the extremes
 
-<div class="cm-pair">
+<div class="cm-pair cm-pair-short">
   <img src="/camulator/ke_spectrum_ratio.png" alt="Ratio of CAMulator to CAM6 kinetic energy against total wavenumber" />
-  <img src="/camulator/ar_rain_tail.png" alt="Distributions of peak precipitation in atmospheric rivers for CESM2 and CAMulator" />
+  <img src="/camulator/ar_rain_tail_a.png" alt="Distribution of peak precipitation in atmospheric rivers for CESM2 and CAMulator, log scale" />
 </div>
 
-- The squared-error loss rewards smoothing: kinetic energy at small scales is about one third too low.
-- Atmospheric-river rain matches CAM6 on average, but 6-h totals above 25 mm are rarer and the wettest point is 7 % low.
+- The same smoothing behind the forecast skill: kinetic energy at small scales is **about one third too low** (left).
+- Atmospheric-river rain matches on average, but 6-h totals **above 25 mm are rarer** (right, red below blue) and the wettest point is 7 % low.
 
-<div class="cm-src">Left: kinetic-energy ratio, CAMulator/CAM6, by wavenumber. Right: peak rain under 10,000 North Pacific ARs per run. Next: a spectral CRPS loss (Charlie Becker, Fabrizio Falasca).</div>
+<div class="cm-src">Left: kinetic-energy ratio, CAMulator/CAM6, by wavenumber (small scales to the right). Right: peak rain under 10,000 North Pacific atmospheric rivers per run. Next: a spectral CRPS loss (Charlie Becker, Fabrizio Falasca).</div>
 
 <!--
-The second question is the high-frequency end. A squared-error loss pays the network to blur when it is uncertain about small features, and it does: on the left, the emulator's kinetic energy falls below CAM6's at small scales, about a third too low. On the right, the consequence for extremes. Over 10,000 atmospheric rivers per run, the median rain is close, but the heaviest six-hour totals are rarer and the wettest point is 7 percent low. Integrated quantities are right and peaks are flattened. Charlie Becker is testing a probabilistic loss computed in spectral space, which penalises missing variance directly.
+The second question is the high-frequency end. A squared-error loss pays the network to blur when it is uncertain about small features, and it does: on the left, the emulator's kinetic energy falls below CAM6's at small scales, about a third too low. This is the same effect that made the forecasts look better than CAM6 earlier. On the right, the consequence for extremes. Over 10,000 atmospheric rivers per run, the median rain is close, but the heaviest six-hour totals are rarer and the wettest point is 7 percent low. Integrated quantities are right and peaks are flattened. Charlie Becker is testing a probabilistic loss computed in spectral space, which penalises missing variance directly.
 -->
 
 ---
 
-# Low-frequency variability and drift
+# Slow drift hides in modes the loss barely sees
 
-<div class="cm-cols">
+<div class="cm-cols cm-cols-wide">
 <div>
 
 <img src="/camulator/winter_bias.png" class="cm-fig-col" alt="Free-run bias maps of 500 hPa height and surface pressure for winter and summer" />
 
-<div class="cm-src">Free-run bias, CAMulator minus CAM6. Top: 500-hPa height; bottom: surface pressure. Left: winter; right: summer.</div>
+<div class="cm-src">Free-run bias, CAMulator minus CAM6. Top: mid-level pressure (500-hPa height); bottom: surface pressure. Left: winter; right: summer.</div>
 
 </div>
 <div>
@@ -387,8 +393,8 @@ The second question is the high-frequency end. A squared-error loss pays the net
 <div class="cm-right">
 
 - Over decades, a winter circulation bias builds over the Arctic and North Pacific.
-- Two slow modes (43-day and 13-day) hold about half of it, but 0.021 % of the training loss.
-- The same drift appears in forecasts: winter circulation indices reach half of the free-run bias within ten days.
+- Two slow modes (43- and 13-day) hold **about half** of it, but only **0.021 %** of the training loss.
+- It appears in forecasts too: half the bias builds within ten days.
 
 </div>
 
@@ -402,25 +408,15 @@ The third question is the slow end. Run for decades, the emulator develops a win
 
 ---
 
-# A two-mode correction removes the Arctic bias
+# Fixing two slow modes removes the Arctic bias
 
-<div class="cm-cols cm-cols-wide">
-<div>
+<img src="/camulator/slow_mode_fix_top.png" class="cm-fig-wide cm-fig-big" alt="Arctic 500 hPa height bias without and with the two-mode offset, and bar charts of polar-cap pressure, height and stratospheric wind bias" />
 
-<img src="/camulator/slow_mode_fix.png" class="cm-fig-col" alt="Arctic 500 hPa height bias without and with the two-mode offset, zonal-mean wind bias, and annular-mode autocorrelation" />
+- Subtract the two slow modes' estimated tendency error at every step; **no weights change**.
+- Winter polar-cap surface pressure bias: **−5.5 → −0.6 hPa**. Persistence of Arctic pressure anomalies: 16.5 → 10.7 days (CAM6: 10.5).
+- Day-5 forecast error changes by only 0.7 %.
 
-</div>
-<div class="cm-right">
-
-- The tendency error of the two slowest modes is estimated from the 35-year bias and subtracted at every step; no weights change.
-- Winter polar-cap surface pressure bias: −5.5 → −0.6 hPa.
-- Annular-mode memory: 16.5 → 10.7 days (CAM6: 10.5).
-- Day-5 forecast error changes by 0.7 %.
-
-</div>
-</div>
-
-<div class="cm-src">Ten-year runs with and without the offset; prescribed ocean. Next: the same term inside the training loss.</div>
+<div class="cm-src">Ten-year runs with and without the offset; prescribed ocean. Persistence: e-folding time of the Northern Annular Mode. Next: the same term inside the training loss.</div>
 
 <!--
 If the slow modes hold the bias, a correction to those two modes alone should remove it. From the 35-year bias and the linear model we estimate the tendency error that would produce it, keep only the two slowest modes, and subtract that small push at every six-hour step. No network weights change. In ten-year runs the winter polar-cap pressure bias drops from minus 5.5 to minus 0.6 hectopascals, and the memory of the annular mode drops from 16.5 days to 10.7, against CAM6's 10.5, although persistence was never targeted. Forecast error at day five changes by less than one percent. The next step is to put this term into the training loss.
@@ -428,17 +424,17 @@ If the slow modes hold the bias, a correction to those two modes alone should re
 
 ---
 
-# Hindcasts of the strongest atmospheric rivers
+# Strongest rivers: right strength, rain too low
 
 <img src="/camulator/gray_swan.png" class="cm-fig-wide cm-fig-short" alt="Predicted against actual peak water-vapour transport for 120 CAM6 atmospheric rivers at 2- and 4-day lead" />
 
-- At 2 days the 30 strongest rivers keep 98 % of their peak water-vapour transport (95 % interval 96–101 %); persistence keeps 62–76 %.
-- Peak 6-h rain is about 14 % low at every rank.
+- At 2 days, the 30 strongest atmospheric rivers keep **98 %** of their peak water-vapour transport (95 % interval 96–101 %); persistence keeps 62–76 %.
+- Peak 6-h rain is about **14 % low** at every rank: transport is large-scale, rain peaks are small-scale.
 
-<div class="cm-src">120 CAM6 North Pacific ARs, 1981–2014, ranked by peak IVT; CAMulator started from the exact CAM6 state 2 or 4 days before the peak. Framing: Lin and Emanuel (2016); Sun et al. (2025).</div>
+<div class="cm-src">120 CAM6 North Pacific atmospheric rivers, 1981–2014 (within the training period), ranked by peak transport; CAMulator started from the exact CAM6 state 2 or 4 days before the peak. Framing: Lin and Emanuel (2016); Sun et al. (2025).</div>
 
 <!--
-A common worry is that emulators trained with a squared error cannot produce the strongest events, so-called gray swans. We tested the in-distribution version of that. We ranked CAM6's own North Pacific atmospheric rivers by peak water-vapour transport and started the emulator from the exact CAM6 state two and four days before each peak. At two days the 30 strongest rivers keep 98 percent of their peak transport, the same fraction as median rivers, while persistence keeps 62 to 76 percent. The transport is right; the rain is not: peak six-hour rain is about 14 percent low at every rank, consistent with the smoothing on the previous slides.
+A common worry is that emulators trained with a squared error cannot produce the strongest events, so-called gray swans. We tested the in-distribution version of that. We ranked CAM6's own North Pacific atmospheric rivers by peak water-vapour transport and started the emulator from the exact CAM6 state two and four days before each peak. At two days the 30 strongest rivers keep 98 percent of their peak transport, the same fraction as median rivers, while persistence keeps 62 to 76 percent. The transport is right; the rain is not: peak six-hour rain is about 14 percent low at every rank, consistent with the smoothing on the previous slides. These events are from the training years; the out-of-distribution version, events stronger than any in training, is the open question.
 -->
 
 ---
@@ -476,6 +472,22 @@ Tracking follows about 9,700 rivers per run through genesis, growth and decay.
 The last question is rare, high-impact events. Atmospheric rivers deliver most of the heavy precipitation on the US West Coast, and Sean Heslin built the tracking that compares them between the emulator and CESM. The tracking follows about 9,700 rivers per run through their life cycle, which shows that the emulator's rivers grow too slowly because the wind aloft is weak. Kona lows near Hawaii are rarer still, which is where cheap ensembles help. Because the emulator is differentiable, one backward pass gives the sensitivity of an event's intensity to the initial state, which lets us ask which features of the atmosphere made a given event stronger.
 -->
 
+---
+
+# Takeaways
+
+<div class="cm-takeaways">
+
+- **It works for climate.** Decades-long stable runs, the warming trend and El Niño's remote effects, at about 1/30th of the compute when coupled to an ocean.
+- **Its errors share a cause.** A squared-error loss smooths small scales, which mutes extremes, and barely sees slow modes, which drift.
+- **Targeted fixes work.** A two-mode correction, a coupler fix and a wind-stress correction each remove a large bias. Next: build them into training.
+- **The future is the hard test.** Forcings that rose together in training, such as CO₂ and ocean temperature, are hard to separate.
+
+</div>
+
+<!--
+To summarise. An autoregressive emulator of the CESM atmosphere runs stably for decades, reproduces the forced trend and El Niño teleconnections, and cuts the cost of a coupled simulation by about thirty times. Its errors are not random: the squared-error loss blurs small scales, so extremes are muted, and gives almost no weight to slow modes, so the circulation drifts. Where we have found the cause, a small targeted fix removes most of the bias, and the next step is to put those fixes into the training itself. The hardest open problem is the future: when two forcings rose together in the training data, the emulator cannot tell them apart.
+-->
 
 ---
 
@@ -492,5 +504,5 @@ Sean Heslin, Aiden Pape, Ona Melvin, Charlie Becker, Yuanpu Li, Eric Gosnell, Ta
 </div>
 
 <!--
-To summarise: an autoregressive emulator of the CESM atmosphere runs stably for decades, reproduces the forced trend and El Niño teleconnections, and cuts the cost of a coupled simulation by about thirty times. The open problems are the coupled tropical response, smoothed extremes, and slow drifts that the training loss barely sees. The model weights are public on Hugging Face. I am happy to take questions, and the students named here are the people to ask about their parts of the work.
+The model weights are public on Hugging Face. I am happy to take questions, and the students named here are the people to ask about their parts of the work.
 -->

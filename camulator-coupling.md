@@ -126,21 +126,21 @@ Weather is where machine learning has already arrived. This is the WeatherBench 
 
 <div class="cm-wc cm-ladder-t">
 
-| What a climate model must do | Physical models | ML emulators today |
+| From emissions to warming | Physical models | ML emulators today |
 |---|---|---|
-| Warm by the right amount per CO₂ doubling (climate sensitivity) | 1960s–70s | warm with CO₂; not yet shown to be for the right reason |
-| Exchange heat with a dynamic ocean (transient warming, El Niño) | 1970s–90s | this talk: stable for decades, El Niño too weak |
-| Account for the warming that aerosols mask | 1990s | aerosols are usually not an input |
-| Take up carbon on land and in the ocean | 2000s | not included |
+| Carbon: how much emitted CO₂ land and ocean take up | 2000s | not included |
+| Forcing: how much greenhouse warming aerosols mask | 1990s | aerosols are usually not an input |
+| Response: warming per CO₂ doubling (climate sensitivity) | 1960s–70s | warm with CO₂; not yet shown to be for the right reason |
+| Pace: ocean heat uptake and variability such as El Niño | 1970s–90s | this talk: stable for decades, El Niño too weak |
 
 </div>
 
-None of these can be learned from observations of the future. Physical models added them one at a time over about 50 years; ML emulators are on the first rungs.
+None of these can be learned from observations of the future. Physical models built them in over about 50 years; ML emulators reach only the last two, and only in part.
 
 <div class="cm-src">Framing after T. Schneider. Manabe & Wetherald (1967); Charney et al. (1979); Manabe & Bryan (1969); Mitchell et al. (1995); Cox et al. (2000).</div>
 
 <!--
-What does a climate model have to do? This framing follows Tapio Schneider. It has to warm by the right amount when carbon dioxide doubles, which depends mostly on clouds. It has to exchange heat with a dynamic ocean, which sets how fast warming happens and produces El Niño. It has to account for the warming that aerosols mask. And it has to represent how much of our carbon the land and ocean take up. None of these can be learned from observations of the future. Physical climate models added them one at a time, from Manabe's radiative models in the 1960s to coupled carbon cycles around 2000, about fifty years of work. Machine-learning emulators warm with carbon dioxide but have not shown it is for the right reason, and coupling to a dynamic ocean is where this talk sits.
+Follow the chain from emissions to warming; this framing follows Tapio Schneider. First, how much of the carbon we emit stays in the air, which depends on land and ocean uptake. Second, the forcing that results, including the warming that aerosols mask. Third, how much the planet warms in response, the climate sensitivity, which depends mostly on clouds. Fourth, how fast that warming happens, which the ocean sets, along with variability such as El Niño. None of these can be learned from observations of the future. Physical climate models added them one at a time, from Manabe's radiative models in the 1960s to coupled carbon cycles around 2000, about fifty years of work. Machine-learning emulators warm with carbon dioxide but have not shown it is for the right reason, and coupling to a dynamic ocean is where this talk sits.
 -->
 ---
 

@@ -124,25 +124,22 @@ Weather is where machine learning has already arrived. This is the WeatherBench 
 
 ---
 
-# Physical climate models took 50 years
+# What a climate model needs, and when
 
-<div class="cm-wc cm-ladder-t">
-
-| From emissions to warming | Physical models | ML emulators today |
-|---|---|---|
-| Carbon: how much emitted CO₂ land and ocean take up | 2000s | not included |
-| Forcing: how much greenhouse warming aerosols mask | 1990s | aerosols are usually not an input |
-| Response: warming per CO₂ doubling (climate sensitivity) | 1960s–70s | warm with CO₂; not yet shown to be for the right reason |
-| Pace: ocean heat uptake and variability such as El Niño | 1970s–90s | this talk: stable for decades, El Niño too weak |
-
+<div class="cm-cap">
+  <div class="card"><div class="yr">1960s</div><b>Warm by the right amount when CO₂ rises</b><span>climate sensitivity, set mostly by clouds</span><div class="chip part">ML: warms with CO₂, reason not yet shown</div></div>
+  <div class="card"><div class="yr">1970s–90s</div><b>Exchange heat with a dynamic ocean</b><span>how fast warming happens; El Niño</span><div class="chip part">ML: this talk</div></div>
+  <div class="card"><div class="yr">1990s</div><b>Account for warming that aerosols mask</b><span>a cooling forcing that acts through clouds</span><div class="chip no">ML: aerosols usually not an input</div></div>
+  <div class="card"><div class="yr">2000s</div><b>Take up carbon on land and in the ocean</b><span>how much emitted CO₂ stays in the air</span><div class="chip no">ML: not included</div></div>
 </div>
+<div class="cm-cap-arrow"><div class="bar"></div><svg viewBox="0 0 14 14"><polygon points="0,0 14,7 0,14"/></svg></div>
+<div class="cm-cap-lab">about 50 years of physical model development</div>
 
-None of these can be learned from observations of the future. Physical models built them in over about 50 years; ML emulators reach only the last two, and only in part.
+None of these can be learned from observations of the future; each had to be built in.
 
-<div class="cm-src">Framing after T. Schneider. Manabe & Wetherald (1967); Charney et al. (1979); Manabe & Bryan (1969); Mitchell et al. (1995); Cox et al. (2000).</div>
-
+<div class="cm-src">Framing after T. Schneider. Manabe & Wetherald (1967); Manabe & Bryan (1969); Charney et al. (1979); Mitchell et al. (1995); Cox et al. (2000).</div>
 <!--
-Follow the chain from emissions to warming; this framing follows Tapio Schneider. First, how much of the carbon we emit stays in the air, which depends on land and ocean uptake. Second, the forcing that results, including the warming that aerosols mask. Third, how much the planet warms in response, the climate sensitivity, which depends mostly on clouds. Fourth, how fast that warming happens, which the ocean sets, along with variability such as El Niño. None of these can be learned from observations of the future. Physical climate models added them one at a time, from Manabe's radiative models in the 1960s to coupled carbon cycles around 2000, about fifty years of work. Machine-learning emulators warm with carbon dioxide but have not shown it is for the right reason, and coupling to a dynamic ocean is where this talk sits.
+What does a climate model need to be able to do, and how long did it take physical models to get there? This framing follows Tapio Schneider. In the 1960s, Manabe's radiative models first warmed by about the right amount when carbon dioxide rose. From the 1970s to the 1990s, models were coupled to dynamic oceans, which set how fast warming happens and produce El Niño. In the 1990s they learned that aerosols mask part of the greenhouse warming. Around 2000 they began to take up carbon on land and in the ocean. None of this could be learned from observations of the future; each piece was built in, over about fifty years. Machine-learning emulators warm with carbon dioxide but have not shown it is for the right reason, coupling to an ocean is this talk, and the last two are not there yet.
 -->
 ---
 

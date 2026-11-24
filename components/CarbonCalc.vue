@@ -8,10 +8,10 @@ import { computed, ref } from 'vue'
 
 const members = ref(100)
 const years = ref(250)
-const wCore = ref(5)        // W per CPU core under load (assumed; ~640 W node / 128 cores)
-const wGpu = ref(700)       // W per GPU (H100 SXM board power)
-const pue = ref(1.2)        // data-centre power usage effectiveness (assumed)
-const ci = ref(0.5)         // kg CO2e per kWh (assumed grid mix)
+const wCore = ref(6)        // W per CPU core: Derecho node 2x EPYC 7763 (280 W TDP each) + memory/NIC ~700-800 W / 128 cores (estimate)
+const wGpu = ref(700)       // W per GPU: H100 SXM board power (the GPU our coupled runs used; Derecho A100 = 400 W)
+const pue = ref(1.13)       // NWSC PUE, CISL annual report FY2025 (design value 1.08)
+const ci = ref(0.47)        // kg CO2e per kWh: EPA eGRID2023 RMPA subregion (Cheyenne, WY), 1042.5 lb/MWh
 
 const models = [
   { name: 'CESM3', core: 25643, gpu: 0, cls: 'cc-m3' },
@@ -39,10 +39,10 @@ const fmtM = (v: number) => (v / 1e6 >= 10 ? (v / 1e6).toFixed(0) : (v / 1e6).to
       <label>Ensemble members <b>{{ members }}</b><input type="range" min="1" max="100" v-model.number="members" /></label>
       <label>Years per member <b>{{ years }}</b><input type="range" min="10" max="500" step="10" v-model.number="years" /></label>
       <div class="assume">Assumptions</div>
-      <label>Power per CPU core <b>{{ wCore }} W</b><input type="range" min="2" max="12" step="0.5" v-model.number="wCore" /></label>
+      <label>Power per CPU core <b>{{ wCore }} W</b><input type="range" min="3" max="9" step="0.5" v-model.number="wCore" /></label>
       <label>Power per GPU <b>{{ wGpu }} W</b><input type="range" min="300" max="1000" step="50" v-model.number="wGpu" /></label>
-      <label>Data-centre overhead (PUE) <b>{{ pue.toFixed(2) }}</b><input type="range" min="1" max="1.6" step="0.05" v-model.number="pue" /></label>
-      <label>Grid intensity <b>{{ ci.toFixed(2) }} kg CO₂e kWh⁻¹</b><input type="range" min="0" max="1" step="0.05" v-model.number="ci" /></label>
+      <label>Data-centre overhead (PUE) <b>{{ pue.toFixed(2) }}</b><input type="range" min="1" max="1.6" step="0.01" v-model.number="pue" /></label>
+      <label>Grid intensity <b>{{ ci.toFixed(2) }} kg CO₂e kWh⁻¹</b><input type="range" min="0" max="1" step="0.01" v-model.number="ci" /></label>
     </div>
     <div class="out">
       <div class="total">{{ simYears.toLocaleString() }} simulated years</div>

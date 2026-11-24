@@ -13,9 +13,9 @@ themeConfig:
     sections:
       - { label: Motivation, start: 2, end: 7 }
       - { label: The emulator, start: 8, end: 10 }
-      - { label: Coupling, start: 11, end: 17 }
-      - { label: Coupled climate, start: 18, end: 23 }
-      - { label: Next, start: 24, end: 25 }
+      - { label: Coupling, start: 11, end: 16 }
+      - { label: Coupled climate, start: 17, end: 22 }
+      - { label: Next, start: 23, end: 24 }
     hideOnCover: true
 ---
 
@@ -87,8 +87,10 @@ A climate model divides the globe into boxes, about a hundred kilometres across 
 
 <CarbonCalc />
 
+<div class="cm-src">Defaults: Derecho CPU node (2 × AMD EPYC 7763) ≈ 6 W per core under load (estimate); H100 GPU 700 W; NWSC data-centre overhead 1.13 (CISL annual report FY2025); grid 0.47 kg CO₂e kWh⁻¹ (EPA eGRID 2023, RMPA subregion).</div>
+
 <!--
-Here is what the speed buys. Coupled to the CESM ocean and sea-ice models, the emulator runs 55 to 60 simulated years per day without any optimisation, about ten times faster than CESM2, and it uses about thirty times fewer core-hours. Most of the remaining time is spent in the ocean and sea ice, so the atmosphere is no longer the expensive part. The panel converts core-hours into energy and carbon for an ensemble the size of the CESM2 Large Ensemble. Those numbers depend on assumptions about hardware power and the electricity grid, and the assumptions are the sliders.
+Here is what the speed buys. Coupled to the CESM ocean and sea-ice models, the emulator runs 55 to 60 simulated years per day without any optimisation, about ten times faster than CESM2, and it uses about thirty times fewer core-hours. Most of the remaining time is spent in the ocean and sea ice, so the atmosphere is no longer the expensive part. The panel converts core-hours into energy and carbon for an ensemble the size of the CESM2 Large Ensemble. The defaults are Derecho's: about 6 watts per CPU core under load, the measured data-centre overhead of 1.13 at the Wyoming centre, and the regional grid's 0.47 kilograms of CO₂ per kilowatt-hour. Each is a slider, because each is an assumption.
 -->
 
 ---
@@ -380,24 +382,6 @@ This is the main physical point of the coupling. The neural network predicts sur
 
 ---
 
-# The first coupled runs failed at the interface
-
-| Error in the exchange code | Energy error at the ocean surface |
-|---|---:|
-| Air temperature passed from the wrong level, 0.6 K too cold | −6 W m⁻² |
-| Ocean reflectivity fixed instead of varying with the sun angle | about −3 W m⁻² |
-| Winds interpolated twice through a coarser grid, 2.2 % too weak | −1.3 W m⁻² |
-
-Fixing the first error moved the ocean from 0.71 K too cold to 0.14 K too warm, and September Arctic sea ice from 8.8 to 6.5 million km².
-
-<div class="cm-src">For scale, the present energy imbalance of the climate system is about 1 W m⁻². Diagnosis: Yuanpu Li and Will Chapman, with a Python copy of the coupler's flux code checked against the coupler to 1 %.</div>
-
-<!--
-The first coupled runs were too cold everywhere, and the natural suspect was the neural network. It was not. Each of these errors sat in the code that passes fields between Python and Fortran: a temperature taken from the wrong level, a constant ocean reflectivity, and winds weakened by interpolating them twice. Each is comparable to or larger than the energy imbalance behind present-day warming. We found them by rebuilding the coupler's flux calculation in Python and checking it against the coupler's own output. Coupling an emulator is an interface problem as much as a learning problem.
--->
-
----
-
 # Stable coupled runs for decades
 
 <div class="cm-cols">
@@ -415,6 +399,7 @@ The first coupled runs were too cold everywhere, and the natural suspect was the
 - The coupled system has run from 1981 to 2040 without failing or drifting.
 - El Niño events, storms and the seasonal ice edge emerge from the coupled system.
 - No flux correction is applied.
+- The first runs drifted cold because of bugs in the exchange code, not in the network.
 
 </div>
 
@@ -422,7 +407,7 @@ The first coupled runs were too cold everywhere, and the natural suspect was the
 </div>
 
 <!--
-With the interface fixed, the coupled system runs. It has gone from 1981 to 2040 without blowing up, which was not guaranteed: an emulator trained over a prescribed ocean has never seen its own errors fed back through an ocean. The movie shows one year of the coupled run, with sea-surface temperature anomalies, sea ice in white and rain in cyan. El Niño events develop and decay, storms cross the oceans, and the ice edge moves with the seasons.
+The first coupled runs drifted cold, and the cause turned out to be bugs in the exchange code, such as a temperature passed from the wrong level, not the network. With those fixed, the coupled system runs. It has gone from 1981 to 2040 without blowing up, which was not guaranteed: an emulator trained over a prescribed ocean has never seen its own errors fed back through an ocean. The movie shows one year of the coupled run, with sea-surface temperature anomalies, sea ice in white and rain in cyan. El Niño events develop and decay, storms cross the oceans, and the ice edge moves with the seasons.
 -->
 
 ---
@@ -644,4 +629,22 @@ Three CESM2 runs with identical physics and forcing, started from slightly diffe
 
 <!--
 One more idea is needed to read the results. Weather is chaotic, so the same climate model started from two almost identical states produces different histories. These are three runs of CESM2 with the same physics and the same greenhouse gases. Their El Niño events come in different years. The CESM2 Large Ensemble has fifty such runs. Their spread tells us how much any statistic varies by chance, and that is the yardstick for the emulator: we ask whether it falls inside the range of the physical model, not whether it matches any one history.
+-->
+
+---
+
+# Backup: the first coupled runs failed at the interface
+
+| Error in the exchange code | Energy error at the ocean surface |
+|---|---:|
+| Air temperature passed from the wrong level, 0.6 K too cold | −6 W m⁻² |
+| Ocean reflectivity fixed instead of varying with the sun angle | about −3 W m⁻² |
+| Winds interpolated twice through a coarser grid, 2.2 % too weak | −1.3 W m⁻² |
+
+Fixing the first error moved the ocean from 0.71 K too cold to 0.14 K too warm, and September Arctic sea ice from 8.8 to 6.5 million km².
+
+<div class="cm-src">For scale, the present energy imbalance of the climate system is about 1 W m⁻². Diagnosis: Yuanpu Li and Will Chapman, with a Python copy of the coupler's flux code checked against the coupler to 1 %.</div>
+
+<!--
+The first coupled runs were too cold everywhere, and the natural suspect was the neural network. It was not. Each of these errors sat in the code that passes fields between Python and Fortran: a temperature taken from the wrong level, a constant ocean reflectivity, and winds weakened by interpolating them twice. Each is comparable to or larger than the energy imbalance behind present-day warming. We found them by rebuilding the coupler's flux calculation in Python and checking it against the coupler's own output. Coupling an emulator is an interface problem as much as a learning problem.
 -->

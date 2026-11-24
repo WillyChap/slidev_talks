@@ -164,31 +164,35 @@ What does a climate model need to be able to do, and how long did it take physic
 <div class="cm-couple cm-couple-big cm-ladder">
   <div class="box gpu">Shown<br /><small>run stably for decades and follow a forced historical trajectory</small></div>
   <div class="arrows"><span>CAMulator (Chapman et al. 2025), ACE2 (Watt-Meyer et al. 2025)</span></div>
-  <div class="box">Open<br /><small>whether they respond to CO₂ and the ocean through the right mechanisms</small></div>
-  <div class="arrows"><span>in one training run, CO₂ and sea temperature rise together</span></div>
+  <div class="box" v-click="1">Open<br /><small>whether they respond to CO₂ and the ocean through the right mechanisms</small></div>
+  <div class="arrows" v-click="1"><span>in one training run, CO₂ and sea temperature rise together</span></div>
 </div>
 
 </div>
 <div>
 
 <div class="cm-unc">
-  <div class="hd">Possible uses, by how uncertain they are</div>
-  <div class="row"><span>Large ensembles within a trained scenario</span><div class="u" style="width: 22%"></div></div>
-  <div class="row"><span>Long coupled runs, such as ocean spin-up</span><div class="u" style="width: 55%"></div></div>
-  <div class="row"><span>New scenarios outside the training runs</span><div class="u" style="width: 100%"></div></div>
-  <div class="ax"><span>smaller</span><span>uncertainty</span><span>larger</span></div>
-  <div class="side"><b>Side quest: mechanistic discovery.</b> Learning something about the Earth system from a fast, differentiable model.</div>
+  <div class="hd" v-click="2">Possible uses, by how uncertain they are</div>
+  <div class="row" v-click="2"><span>Large ensembles within a trained scenario</span><div class="u" style="width: 22%"></div></div>
+  <div class="row" v-click="3"><span>Long coupled runs, such as ocean spin-up</span><div class="u" style="width: 55%"></div></div>
+  <div class="row" v-click="4"><span>New scenarios outside the training runs</span><div class="u" style="width: 100%"></div></div>
+  <div class="ax" v-click="2"><span>smaller</span><span>uncertainty</span><span>larger</span></div>
+  <div class="side" v-click="5"><b>Another significant purpose of clmate models is mechanistic discovery.</b> Learning something about the Earth system from a fast, differentiable model.</div>
 </div>
 
 </div>
 </div>
 
-The field has a long way to go before climate emulation is where weather emulation is. Coupling to a physical ocean is one way to test it.
+<div class="cm-unc-end" v-click="6">
 
-<div class="cm-src">ACE2 reports that holding CO₂ fixed loses much of the near-surface warming trend (Watt-Meyer et al. 2025).</div>
+The field has a long way to go before climate emulation is where weather emulation is.
+
+</div>
+
+<div class="cm-src cm-unc-end" v-click="1">ACE2 reports that holding CO₂ fixed loses much of the near-surface warming trend (Watt-Meyer et al. 2025).</div>
 
 <!--
-So where does machine-learning climate emulation stand? Our emulator and others such as AI2's ACE2 can run for decades and follow the forced historical trajectory of the model they were trained on. What is not shown is that they get there for the right reasons. In a single training simulation, carbon dioxide and ocean temperature rise together, so a network can lean on either one. That makes some uses far more certain than others. Large ensembles within a scenario the model was trained on are the safest. Long coupled runs, such as spinning up an ocean, are less certain. New scenarios outside the training runs are much less certain still. Alongside these there is a side quest: a fast, differentiable model may teach us something about the Earth system itself. The field has a long way to go before climate is where weather is. The rest of the talk is one test of that: coupling the emulator to a physical ocean.
+So where does machine-learning climate emulation stand? Our emulator and others such as AI2's ACE2 can run for decades and follow the forced historical trajectory of the model they were trained on. [click] What is not shown is that they get there for the right reasons. In a single training simulation, carbon dioxide and ocean temperature rise together, so a network can lean on either one. [click] That makes some uses far more certain than others. Large ensembles within a scenario the model was trained on are the safest. [click] Long coupled runs, such as spinning up an ocean, are less certain. [click] New scenarios outside the training runs are much less certain still. [click] Alongside these there is a side quest: a fast, differentiable model may teach us something about the Earth system itself. [click] The field has a long way to go before climate is where weather is. The rest of the talk is one test of that: coupling the emulator to a physical ocean.
 -->
 
 ---
@@ -220,8 +224,32 @@ CAMulator takes the state of the atmosphere, winds, temperature and moisture on 
 <div class="cm-src">The loss sums the squared error over three consecutive six-hour steps, with gradients through all three.</div>
 </div>
 <div v-click="1">
-<img src="/camulator/conservation_blocks.png" alt="Network output passed through post-blocks that enforce tracer positivity, dry-air mass, water and energy conservation" />
+
+<div class="cm-pb">
+  <div class="io"><i>x</i><sub>t</sub><small>+ forcing</small></div>
+  <div class="ar"></div>
+  <div class="net"><span><i>F</i><sub>θ</sub>: CAMulator</span><small>874 M weights</small></div>
+  <div class="ar"></div>
+  <div class="post">
+    <div class="brk">post-blocks: global conservation, differentiable</div>
+    <div class="row">
+      <div class="pb">tracers ≥ 0<small>clip</small></div><div class="ar s"></div>
+      <div class="pb">dry-air mass<small>rescale <i>p</i><sub>s</sub></small></div><div class="ar s"></div>
+      <div class="pb">water<small>rescale rain</small></div><div class="ar s"></div>
+      <div class="pb">energy<small>rescale <i>T</i></small></div>
+    </div>
+  </div>
+  <div class="ar"></div>
+  <div class="io"><i>x̂</i><sub>t+Δt</sub><small>147 + 17 maps</small></div>
+  <div class="grad"><span>∂ℒ/∂θ</span></div>
+</div>
+
+$$
+\mathcal{L} = \tfrac{1}{3}\sum_{k=1}^{3} \big\lVert \hat{x}_{t+k\Delta t} - x_{t+k\Delta t} \big\rVert_w^2 \quad \text{on the delivered state, gradient through the post-blocks}
+$$
+
 <div class="cm-src">Final layers rescale the output so that global dry-air mass, water and energy are conserved; they are trained with the network.</div>
+
 </div>
 </div>
 

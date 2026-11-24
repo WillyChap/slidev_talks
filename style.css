@@ -89,3 +89,9 @@
 .cm-wc th { font-weight: 700; color: #2E4A6B; }
 .cm-wc td:first-child { font-weight: 700; white-space: nowrap; }
 .cm-wc td, .cm-wc th { padding: 0.5rem 0.6rem; }
+.cm-unc { font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.55rem; }
+.cm-unc .hd { font-weight: 700; color: #2E4A6B; }
+.cm-unc .row span { display: block; margin-bottom: 0.15rem; }
+.cm-unc .u { height: 0.75rem; border-radius: 0.4rem; background: linear-gradient(90deg, rgba(207,184,124,0.15), var(--cu-gold) 50%, rgba(207,184,124,0.15)); }
+.cm-unc .ax { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--cu-text-muted); border-top: 1px solid #999; padding-top: 0.15rem; }
+.cm-unc .side { margin-top: 0.4rem; border: 2px dashed #2E4A6B; border-radius: 6px; padding: 0.45rem 0.6rem; background: #F2F5F9; }

@@ -154,14 +154,13 @@ Climate is a different problem from weather. A weather forecast is checked again
 </div>
 <div>
 
-<div class="cm-right">
-
-Possible uses, from most to least certain:
-
-- Large ensembles and uncertainty within a trained scenario.
-- Long coupled runs, such as ocean spin-up.
-- New scenarios outside the training runs.
-
+<div class="cm-unc">
+  <div class="hd">Possible uses, by how uncertain they are</div>
+  <div class="row"><span>Large ensembles within a trained scenario</span><div class="u" style="width: 22%"></div></div>
+  <div class="row"><span>Long coupled runs, such as ocean spin-up</span><div class="u" style="width: 55%"></div></div>
+  <div class="row"><span>New scenarios outside the training runs</span><div class="u" style="width: 100%"></div></div>
+  <div class="ax"><span>smaller</span><span>uncertainty</span><span>larger</span></div>
+  <div class="side"><b>Side quest: mechanistic discovery.</b> Learning something about the Earth system from a fast, differentiable model.</div>
 </div>
 
 </div>
@@ -172,7 +171,7 @@ The field has a long way to go before climate emulation is where weather emulati
 <div class="cm-src">ACE2 reports that holding CO₂ fixed loses much of the near-surface warming trend (Watt-Meyer et al. 2025).</div>
 
 <!--
-So where does machine-learning climate emulation stand? Our emulator and others such as AI2's ACE2 can run for decades and follow the forced historical trajectory of the model they were trained on. What is not shown is that they get there for the right reasons. In a single training simulation, carbon dioxide and ocean temperature rise together, so a network can lean on either one. That makes some uses more certain than others: large ensembles within a trained scenario are the safest, long coupled runs are less certain, and new scenarios are the least certain. The field has a long way to go before climate is where weather is. The rest of the talk is one test of that: coupling the emulator to a physical ocean.
+So where does machine-learning climate emulation stand? Our emulator and others such as AI2's ACE2 can run for decades and follow the forced historical trajectory of the model they were trained on. What is not shown is that they get there for the right reasons. In a single training simulation, carbon dioxide and ocean temperature rise together, so a network can lean on either one. That makes some uses far more certain than others. Large ensembles within a scenario the model was trained on are the safest. Long coupled runs, such as spinning up an ocean, are less certain. New scenarios outside the training runs are much less certain still. Alongside these there is a side quest: a fast, differentiable model may teach us something about the Earth system itself. The field has a long way to go before climate is where weather is. The rest of the talk is one test of that: coupling the emulator to a physical ocean.
 -->
 
 ---

@@ -85,3 +85,7 @@
 .cm-ladder .box { text-align: left; padding: 0.7rem 0.8rem; }
 .cm-ladder .box small { font-size: 0.85em; display: block; margin-top: 0.2rem; }
 .cm-ladder .arrows span { font-size: 0.75rem; }
+.cm-wc table { font-size: 0.88em; width: 100%; margin-top: 0.4rem; }
+.cm-wc th { font-weight: 700; color: #2E4A6B; }
+.cm-wc td:first-child { font-weight: 700; white-space: nowrap; }
+.cm-wc td, .cm-wc th { padding: 0.5rem 0.6rem; }

@@ -126,18 +126,23 @@ Weather is where machine learning has already arrived. This is the WeatherBench 
 
 # Climate is a different problem
 
-<div class="cm-three">
-  <div><div class="big">2.5–4 °C</div><b>Climate sensitivity</b><span>Warming per doubling of CO₂.</span><em>Largest unknown: how clouds respond</em></div>
-  <div><div class="big">−0.6 to −2.0 W m⁻²</div><b>Aerosols</b><span>Greenhouse warming masked by aerosols.</span><em>Largest unknown: aerosol effects on clouds</em></div>
-  <div><div class="big">30 %</div><b>Carbon uptake by land</b><span>Share of emitted CO₂ taken up by land; how will it change?</span><em>Largest unknown: plant and soil response</em></div>
+<div class="cm-wc">
+
+| | Weather | Climate |
+|---|---|---|
+| What is predicted | the next days of a known atmosphere | how climate changes when forcing changes |
+| How it is checked | against observations, every day | mostly it cannot be: that climate has not happened |
+| Training data | decades of reanalysis | one or a few simulations of one forced history |
+| What must be right | the trajectory | the response to forcing: clouds, aerosols, carbon uptake |
+
 </div>
 
-Weather models are tested every day against observations. These three questions concern a climate we have not observed, so there are no training data for the answer; a climate model needs a physical path to it.
+Example: warming per doubling of CO₂ is still 2.5–4 °C (likely range), mostly because of how clouds respond. No training set contains the answer.
 
-<div class="cm-src">Three questions a climate model must answer, after T. Schneider. Likely ranges: IPCC AR6 WGI; land uptake: Global Carbon Budget.</div>
+<div class="cm-src">Framing after T. Schneider. Likely range: IPCC AR6 WGI.</div>
 
 <!--
-Climate is a different problem. A weather forecast is checked against what happens a few days later, millions of times. The questions a climate model exists to answer are about a climate we have not seen. How much warming do we get per doubling of carbon dioxide; the likely range is still 2.5 to 4 degrees, mostly because of clouds. How much warming are aerosols hiding. How much carbon will land keep absorbing. There is no training data for the answers, so a model has to get there through the right physical mechanisms. This framing is Tapio Schneider's, and it sets the bar for anything we call a climate model.
+Climate is a different problem from weather. A weather forecast predicts the next few days of an atmosphere we already observe, and it is checked against reality every day, with decades of reanalysis to train on. A climate model is asked how the climate changes when the forcing changes, and that future has not happened, so there is nothing to check it against and nothing to train on for the answer. What has to be right is the response to forcing, which runs through processes such as clouds, aerosols and the carbon cycle. The warming per doubling of carbon dioxide is still uncertain between 2.5 and 4 degrees, mostly because of clouds. This way of framing the problem follows Tapio Schneider.
 -->
 
 ---

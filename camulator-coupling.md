@@ -47,7 +47,7 @@ The coupled system was built by Yuanpu Li, a postdoc in the group, and most of t
 
 ---
 
-# ML weather models now match physics models
+# ML weather models now 'match' physics models
 
 <div class="cm-cols cm-wx">
 <div>
@@ -202,7 +202,7 @@ So where does machine-learning climate emulation stand? Our emulator and others 
 
 ---
 
-# CAMulator: a learned six-hour step
+# CAMulator ($F\theta$) - UNET crossformer
 
 <img src="/camulator/rollout_diagram.png" class="cm-roll" alt="The same network F applied repeatedly: x at t to x at t plus one to x at t plus two" />
 
@@ -213,7 +213,7 @@ So where does machine-learning climate emulation stand? Our emulator and others 
   <div><span class="big">0.3 s</span><b>per step on one GPU</b><em>874 M parameters</em></div>
 </div>
 
-<div class="cm-given"><b>Given, not predicted:</b> ocean temperature, sea ice, sunlight and CO₂ enter as inputs. In training they come from the CESM2 run; coupled, the ocean and sea-ice models supply them.</div>
+<div class="cm-given"><b>Prescribed:</b> ocean temperature, sea ice, sunlight and CO₂ enter as inputs. In training/inference they come from the CESM2 run</div>
 
 <!--
 CAMulator takes the state of the atmosphere, winds, temperature and moisture on thirty-two levels plus surface pressure, and predicts the state six hours later. The prediction becomes the next input, and the model is applied again, so a century is about 146,000 steps. It was trained on six-hourly output of one CESM2 run, about 48,000 samples from a single history. The ocean temperature, sea ice, sunlight and carbon dioxide are inputs. That design is what makes coupling possible: if the ocean is an input, a real ocean model can supply it.
@@ -398,12 +398,12 @@ The two halves never share memory. CESM has a component called the data atmosphe
 
 ---
 
-# The ocean feels the emulator's lowest model level, not its fluxes
+# The ocean/ice are given the emulator's lowest model level + fluxes
 
 <div class="cm-flow">
   <div class="cam">CAMulator<small>one six-hour step</small></div>
   <div class="lane la">
-    <div class="tag">Its own flux outputs<small>heat, stress, evaporation</small></div>
+    <div class="tag">CAMulator emulated Fluxes<small>stress, rad., t. fluxes, E, P</small></div>
     <div class="ar"></div>
     <div class="end">
       <div class="unused" v-click="1">✕ not used over the ocean</div>
@@ -411,11 +411,11 @@ The two halves never share memory. CESM has a component called the data atmosphe
     <div class="dim" v-click="1"></div>
   </div>
   <div class="lane lb">
-    <div class="tag">Lowest-level air, ~60 m<small>temperature, humidity, wind</small></div>
+    <div class="tag">Lowest model-level state, ~60 m<small>temperature, humidity, wind</small></div>
     <div class="ar"></div>
     <div class="cpl">Coupler<small>bulk formulas</small></div>
-    <div class="ar both"><span class="up">SST, currents</span><span class="dn">stress, heat, evaporation</span></div>
-    <div class="ocn">Ocean (POP2)<small>surface temperature, currents</small></div>
+    <div class="ar both"><span class="up">SST</span><span class="dn">stress, rad., t. fluxes, E, P</span></div>
+    <div class="ocn">Ocean (POP2)<small>surface temperature </small></div>
   </div>
 </div>
 
@@ -444,6 +444,7 @@ This is the main physical point of the coupling. The neural network predicts sur
 - The coupled system has run from 1981 to 2040 without failing or drifting.
 - El Niño events, storms and the seasonal ice edge emerge from the coupled system.
 - No flux correction is applied.
+- It runs 55 to 60 simulated years per day, about 10× faster than CESM2. The ocean and sea ice now take most of the time.
 - The first runs drifted cold because of bugs in the exchange code, not in the network.
 
 </div>
@@ -452,7 +453,7 @@ This is the main physical point of the coupling. The neural network predicts sur
 </div>
 
 <!--
-The first coupled runs drifted cold, and the cause turned out to be bugs in the exchange code, such as a temperature passed from the wrong level, not the network. With those fixed, the coupled system runs. It has gone from 1981 to 2040 without blowing up, which was not guaranteed: an emulator trained over a prescribed ocean has never seen its own errors fed back through an ocean. The movie shows one year of the coupled run, with sea-surface temperature anomalies, sea ice in white and rain in cyan. El Niño events develop and decay, storms cross the oceans, and the ice edge moves with the seasons.
+The first coupled runs drifted cold, and the cause turned out to be bugs in the exchange code, such as a temperature passed from the wrong level, not the network. With those fixed, the coupled system runs. It has gone from 1981 to 2040 without blowing up, which was not guaranteed: an emulator trained over a prescribed ocean has never seen its own errors fed back through an ocean. The movie shows one year of the coupled run, with sea-surface temperature anomalies, sea ice in white and rain in cyan. El Niño events develop and decay, storms cross the oceans, and the ice edge moves with the seasons. And it is fast: 55 to 60 simulated years per day, about ten times faster than CESM2, with most of the remaining time spent in the ocean and sea ice rather than the atmosphere.
 -->
 
 ---
